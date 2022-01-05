@@ -13,11 +13,11 @@ const std::string calibrationFile= "calib.txt";
 const std::string dumpFile = "log.txt";
 /* paths
 */
-const std::string datasetPath = "../Data/sequences/";
-const std::string posePath = "../Data/poses/";
+const std::string datasetPath = "../../Data/sequences/";
+const std::string posePath = "../../Data/poses/";
 const std::string leftImagesDir = "image_0/";
 const std::string rightImagesDir = "image_1/";
-const std::string dataPath = "../Data/";
+const std::string dataPath = "../Log/";
 
 const std::string calibrationFilePath = datasetPath +  sequenceID + "/" + calibrationFile;
 const std::string groundTruthFilePath = posePath + sequenceID + ".txt";

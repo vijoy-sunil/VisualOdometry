@@ -2,6 +2,7 @@
 #include "../Include/Logger.h"
 #include "../Include/Utils.h"
 #include "../Include/Constants.h"
+#include <opencv2/viz.hpp>
 #include <fstream>
 
 VOClass::VOClass(void){
@@ -113,6 +114,37 @@ bool VOClass::getProjectionMatrices(const std::string calibrationFile){
     else{
         Logger.addLog(Logger.levels[ERROR], "Unable to open calibration file");
         assert(false);
+    }
+}
+
+/* this matrix is to be used to convert to feature points to 3d world
+ * coordinates
+ *  _                        _
+ *  | 1    0    0      -cx    |
+ *  | 0    1    0      -cy    |
+ *  | 0    0    0      f      |
+ *  | 0    0   -1/Tx   0      |
+ *  -                        - 
+*/
+void VOClass::getQMatrix(void){
+    float cx = projectionCL.at<float>(0, 2);
+    float cy = projectionCL.at<float>(1, 2);
+    float f  = projectionCL.at<float>(0, 0);
+    float tx = (projectionCR.at<float>(0, 3))/(-1 * f);
+
+    float data[16] = {1,    0,    0,    -cx, 
+                      0,    1,    0,    -cy,
+                      0,    0,    0,     f,
+                      0,    0, -(1/tx),  0 
+                      }; 
+    qMat = cv::Mat(4, 4, CV_32F, data);
+
+    Logger.addLog(Logger.levels[INFO], "Constructed qMat");
+    for(int r = 0; r < 4; r++){
+        Logger.addLog(Logger.levels[DEBUG], qMat.at<float>(r, 0), 
+                                            qMat.at<float>(r, 1), 
+                                            qMat.at<float>(r, 2), 
+                                            qMat.at<float>(r, 3));
     }
 }
 
@@ -414,4 +446,5 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
     featurePointsLT1 = fLT1Re;
     return fLT2;
 }
+
 

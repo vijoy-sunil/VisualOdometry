@@ -1,0 +1,23 @@
+[ INF ] Constructed projectionCL 
+[ DEB ] 718.856 0 607.193 0 
+[ DEB ] 0 718.856 185.216 0 
+[ DEB ] 0 0 1 0 
+[ INF ] Constructed projectionCR 
+[ DEB ] 718.856 0 607.193 -386.145 
+[ DEB ] 0 718.856 185.216 0 
+[ DEB ] 0 0 1 0 
+[ INF ] Constructed qMat 
+[ DEB ] 1 0 0 -607.193 
+[ DEB ] 0 1 0 -185.216 
+[ DEB ] 0 0 0 718.856 
+[ DEB ] 0 0 -1.86162 0 
+[ INF ] Constructed ground truth trajectory 4541 
+[ INF ] Computed disparity map 
+[ INF ] Computed disparity map 
+[ INF ] Computed feature vector 4607 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 4607 4607 4607 4607 4607 
+[ INF ] Status vector sizes 4607 4607 4607 4607 
+[ INF ] Status vector valid points 4496 4262 4238 4291 
+[ INF ] Status vector valid points Bounds filter 4458 4208 4199 4290 
+[ INF ] Extracted common features 4178 

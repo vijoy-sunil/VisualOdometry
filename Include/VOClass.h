@@ -32,6 +32,12 @@ class VOClass{
         /* read from poses.txt and store it into matrix
         */
         void constructExtrinsicMatrix(std::string line);
+        /* Q matrix
+        */
+        cv::Mat qMat = cv::Mat::zeros(4, 4, CV_32F);
+        /* read from projection matrix
+        */
+        void constructQMatrix(void);
         /* extract R and T from extrinsic matrix
         */
         void extractRT(cv::Mat& R, cv::Mat& T);
@@ -68,6 +74,9 @@ class VOClass{
          * calibration file
         */
         bool getProjectionMatrices(const std::string calibrationFile);
+        /* 4x4 Q matrix
+        */
+        void getQMatrix(void);
         /* get ground truth output poses, so that we can compare our
          * estimate with it at the end
         */

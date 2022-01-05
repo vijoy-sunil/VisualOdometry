@@ -7,8 +7,8 @@ int main(void){
     /* read from input files
     */
     VO.getProjectionMatrices(calibrationFilePath);
+    VO.getQMatrix();
     VO.getGroundTruthPath(groundTruthFilePath);
-
     /* main loop
     */
     for(int i = 0; i < numFrames-1; i++){
