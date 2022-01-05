@@ -1,0 +1,40 @@
+   
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build with Clang",
+            "type": "shell",
+            "command": "clang++",
+			"args": [
+				"-g",
+				"-std=c++17",
+				"-stdlib=libc++",
+      
+				"-I", "/opt/homebrew/Cellar/opencv/4.5.4_1/include/opencv4",
+                "-I", "${workspaceFolder}/Include/",
+
+				"-L", "/opt/homebrew/Cellar/opencv/4.5.4_1/lib",
+                "-l", "opencv_imgcodecs",
+                "-l", "opencv_core",
+                "-l", "opencv_highgui",
+                "-l", "opencv_calib3d",
+                "-l", "opencv_imgproc",
+                "-l", "opencv_features2d",
+                "-l", "opencv_video",
+
+                "${workspaceFolder}/Source/Logger.cpp",
+				"${workspaceFolder}/Source/main.cpp",
+                "${workspaceFolder}/Source/Utils.cpp",
+                "${workspaceFolder}/Source/VOClass.cpp",
+                
+				"-o",
+				"${workspaceFolder}/Build/ProductImage.exe"
+			],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
