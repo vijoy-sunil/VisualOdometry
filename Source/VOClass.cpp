@@ -15,110 +15,18 @@ VOClass::VOClass(void){
 VOClass::~VOClass(void){
 }
 
-void VOClass::constructProjectionMatrix(std::string line, cv::Mat& projectionMat){
-    /* split line to words
-    */
-    std::vector<std::string> sub = tokenize(line);
-    /* skip first word
-    */
-    int k = 1;
-    for(int r = 0; r < 3; r++){
-        for(int c = 0; c < 4; c++){
-            projectionMat.at<float>(r, c) = std::stof(sub[k++]);
-        }
-    }
-}
-
-void VOClass::constructExtrinsicMatrix(std::string line){
-    /* split line to words
-    */
-    std::vector<std::string> sub = tokenize(line);
-    int k = 0;
-    for(int r = 0; r < 3; r++){
-        for(int c = 0; c < 4; c++){
-            extrinsicMat.at<float>(r, c) = std::stof(sub[k++]);
-        }
-    }
-    /* add last row since that is omitted in the text file
-     * last row will be [0, 0, 0, 1]
-    */
-    extrinsicMat.at<float>(3, 3) = 1;
-}
-
-void VOClass::extractRT(cv::Mat& R, cv::Mat& T){
-    /* extract 3x3 R
-    */
-    for(int r = 0; r < 3; r++){
-        for(int c = 0; c < 3; c++){
-            R.at<float>(r, c) = extrinsicMat.at<float>(r, c);
-        }
-    }
-    /* extract 3x1 R
-    */
-    for(int r = 0; r < 3; r++)
-        T.at<float>(r, 0) = extrinsicMat.at<float>(r, 3);
-}
-
-bool VOClass::isOutOfBounds(cv::Point2f featurePoint){
-    if(featurePoint.x < 0 || featurePoint.x > frameW)
-        return true;
-    
-    if(featurePoint.y < 0 || featurePoint.y > frameH)
-        return true;
-
-    return false;
-}
-
-void VOClass::markInvalidFeaturesBounds(std::vector<cv::Point2f> featurePoints, 
-                                    std::vector<unsigned char>& status){
-    int numFeatures = featurePoints.size();
-    for(int i = 0; i < numFeatures; i++){
-        if(isOutOfBounds(featurePoints[i]))
-            status[i] = 0;
-    }
-}
-
-int VOClass::validMatches(std::vector<unsigned char> status){
-    int n = status.size();
-    int numOnes = 0;
-    for(int i = 0; i < n; i++){
-        if(status[i] == 1)
-            numOnes++;
-    }
-    return numOnes;
-}
-
-void VOClass::removeInvalidFeatures(std::vector<cv::Point2f>& featurePointsPrev, 
-                                    std::vector<cv::Point2f>& featurePointsCurrent, 
-                                    std::vector<unsigned char> status){
-    /* create an empty feature vector, push valid ones into this and
-     * finally copy this to the original
-    */
-    std::vector<cv::Point2f> validPointsPrev, validPointsCurrent;
-    int numFeatures = featurePointsPrev.size();
-    for(int i = 0; i < numFeatures; i++){
-        if(status[i] == 1){
-            validPointsPrev.push_back(featurePointsPrev[i]);
-            validPointsCurrent.push_back(featurePointsCurrent[i]);
-        }
-    }
-    featurePointsPrev = validPointsPrev;
-    featurePointsCurrent = validPointsCurrent;
-}
-
 /* this function will be called in a loop to read through all sets of 
  * images within a sequence directory frameNumber will go from 1 to 
  * sizeof(imageDir)
 */
 bool VOClass::readStereoImagesT1T2(int frameNumber){
-    assert(frameNumber != 0);
     /* construct image file name from frameNumber, and img
      * format (.png in our case)
     */
     const int nameWidth = 6;
     /* read image pair at t = 1
     */
-    std::string imgName = formatStringWidth(frameNumber - 1, nameWidth) + ".png";
+    std::string imgName = formatStringWidth(frameNumber, nameWidth) + ".png";
     imgLT1 = cv::imread(leftImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
     if(imgLT1.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgLT1", "leftImagesPath + imgName");
@@ -132,12 +40,12 @@ bool VOClass::readStereoImagesT1T2(int frameNumber){
     }
 
 #if 0
-    testShowStereoImage(imgLT1, imgRT1, frameNumber-1);
+    testShowStereoImage(imgLT1, imgRT1, frameNumber);
 #endif
 
-    /* read image pair at t = 2
+    /* read image pair at t+1
     */
-    imgName = formatStringWidth(frameNumber, nameWidth) + ".png";
+    imgName = formatStringWidth(frameNumber+1, nameWidth) + ".png";
     imgLT2 = cv::imread(leftImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
     if(imgLT2.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgLT2", "leftImagesPath + imgName");
@@ -151,7 +59,7 @@ bool VOClass::readStereoImagesT1T2(int frameNumber){
     }
 
 #if 0
-    testShowStereoImage(imgLT2, imgRT2, frameNumber);
+    testShowStereoImage(imgLT2, imgRT2, frameNumber+1);
 #endif
     return true;
 }
@@ -379,8 +287,14 @@ std::vector<cv::Point2f> VOClass::getFeaturesFAST(cv::Mat img){
  * NOTE: There are 2 types of optical flow. Dense and sparse. Dense finds 
  * flow for all the pixels while sparse finds flow for the selected points.
  * 
- * Match feature from imgLT1 to LT2, remove all other points from feature
- * vector
+ * The circular algorithm takes a feature from one frame and finds the best 
+ * match in an another frame, sequentially following the order Left(t) - Right(t) 
+ * - Right(t+1)-Left(t+1)-Left(t)
+ * 
+ * Finally, if the feature is successfully matched through the entire sequence, 
+ * i.e., the last matched feature is the same as the beginning one, the circle 
+ * is closed and the feature is considered as `being stable` and therefore kept 
+ * as a high-quality point for further analysis
 */
 std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &featurePointsLT1){
     /* create termination criteria for optical flow calculation
@@ -501,202 +415,3 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
     return fLT2;
 }
 
-/* this displays the stereo pair side by side
-*/
-void VOClass::testShowStereoImage(cv::Mat imgLeft, cv::Mat imgRight, int frameNumber){
-    Logger.addLog(Logger.levels[TEST], "Show stereo pair images", frameNumber);
-
-    cv::Mat imgPair;
-    cv::vconcat(imgLeft, imgRight, imgPair);
-
-    /* Mat, text, point, font, font scale, color, thickness
-    */
-    std::string text = "FRAME: " + std::to_string(frameNumber);
-    cv::putText(imgPair, text, cv::Point(20, 40), cv::FONT_HERSHEY_DUPLEX, 
-                1, cv::Scalar(255, 255, 255), 1
-    );
-    imshow("Stereo Pair", imgPair);
-    cv::waitKey(0);
-}
-
-/* read stereo pair, compute disparity and display them
-*/
-void VOClass::testShowDisparityImage(cv::Mat imgLeft, cv::Mat imgRight, cv::Mat disparityMap){
-    Logger.addLog(Logger.levels[TEST], "Show disparity and stereo pair images");
-
-    cv::Mat imgPair, imgTuple;
-    cv::vconcat(imgLeft, imgRight, imgPair);
-
-    /* disparityMap type is of type CV_16S and imgPair is of type CV_8U, to
-     * concat, both of them need to be of the same type
-    */
-    cv::Mat disparityMapTypeChanged;
-    disparityMap.convertTo(disparityMapTypeChanged, CV_8UC1);
-
-    cv::vconcat(imgPair, disparityMapTypeChanged, imgTuple);
-    imshow("Disparity Map", imgTuple);
-    cv::waitKey(0);
-}
-
-/* plot ground truth trajectory
-*/
-void VOClass::testShowGroundTruthTrajectory(void){
-    int numPoints = groundX.size();
-    Logger.addLog(Logger.levels[TEST], "Show ground truth trajectory");
-    /* create an empty image
-    */
-    const int trajectoryR = 800;
-    const int trajectoryC = 800;
-    cv::Mat trajectory = cv::Mat::zeros(trajectoryR, trajectoryC, CV_8UC3);
-    for(int i = 0; i < numPoints; i++){
-        /* shift origin of the path so that the entire path is visible, 
-         * default origin is at top left of the screen
-         *
-         * NOTE:
-         * Some trajectories may go out of bounds and become invisible,
-         * the origin shift has to be updated accordingly
-         * o---------------------> x or cols
-         * |
-         * |
-         * |
-         * | y or rows
-         * v
-        */
-
-        /* the camera on the car is facing the z axis, so to get a
-         * top down view, we plot x-z axis
-        */
-        int p1 = groundX[i] + trajectoryC/2;
-        int p2 = groundZ[i] + trajectoryR/4;
-        /* img, center, radius, color, thickness
-         */
-        /* different color for the starting point and ending point
-         */
-        if(i == 0)
-            cv::circle(trajectory, cv::Point(p1, p2), 5, CV_RGB(0, 255, 0), 2);
-        else if(i == numPoints - 1)
-            cv::circle(trajectory, cv::Point(p1, p2), 5, CV_RGB(255, 0, 0), 2);
-        else
-            cv::circle(trajectory, cv::Point(p1, p2), 1, CV_RGB(255, 255, 0), 2);   
-    }
-
-    imshow("Ground Truth", trajectory);
-    cv::waitKey(0); 
-}
-
-/* display detected features
-*/
-void VOClass::testShowDetectedFeatures(cv::Mat img, std::vector<cv::Point2f> featurePoints){
-    Logger.addLog(Logger.levels[TEST], "Show features detected");
-    /* img is a single channel image, we will convert it to 3
-     * to color our feature points
-    */
-    cv::Mat imgChannelChanged;
-    cv::cvtColor(img, imgChannelChanged, cv::COLOR_GRAY2RGB);
-    /* mark all feature  points on img
-    */
-    int numFeatures = featurePoints.size();
-    for(int i = 0; i < numFeatures; i++){
-        cv::circle(imgChannelChanged, featurePoints[i], 1, CV_RGB(0, 0, 255), 2);
-    }
-    imshow("Feature Points", imgChannelChanged);
-    cv::waitKey(0);
-}
-
-/* display result of circular matching
-*/
-void VOClass::testShowCirculatMatchingPair(cv::Mat img, 
-                                   std::vector<cv::Point2f> featurePointsCurrent, 
-                                   std::vector<cv::Point2f> featurePointsNext, 
-                                   std::vector<unsigned char> status){
-    /* even if they are of the same size, not all of them would be
-     * matched, we need to look at the status vector to confirm match
-    */
-    assert(featurePointsCurrent.size() == featurePointsNext.size());
-    Logger.addLog(Logger.levels[TEST], "Show circular matching result");
-    /* img is a single channel image, we will convert it to 3
-     * to color our feature points and lines
-    */
-    cv::Mat imgChannelChanged;
-    cv::cvtColor(img, imgChannelChanged, cv::COLOR_GRAY2RGB); 
-    /* line connecting current feature to prev feature point to show
-     * optical flow
-    */    
-    for(int i = 0; i < featurePointsCurrent.size(); i++){
-        if(status[i] == 1){
-            cv::line(imgChannelChanged, featurePointsCurrent[i], featurePointsNext[i], 
-            cv::Scalar(0, 255, 0), 2);
-        }
-    }
-    imshow("Tracked features", imgChannelChanged);
-    cv::waitKey(0);
-}
-
-/* display full circular matching
-*/
-void VOClass::testShowCirculatMatchingFull(std::vector<cv::Point2f> fLT1, 
-                                           std::vector<cv::Point2f> fRT1, 
-                                           std::vector<cv::Point2f> fRT2, 
-                                           std::vector<cv::Point2f> fLT2,
-                                           std::vector<cv::Point2f> fLT1Re){
-
-    int n = fLT1.size();
-    Logger.addLog(Logger.levels[TEST], "Show full circular matching result");
-    int idx = 4000;
-
-    assert(idx < n);
-    /* change all 4 images to 3 channels
-    */
-    cv::Mat img1, img2, img3, img4;
-    cv::cvtColor(imgLT1, img1, cv::COLOR_GRAY2RGB); 
-    cv::cvtColor(imgRT1, img2, cv::COLOR_GRAY2RGB); 
-    cv::cvtColor(imgRT2, img3, cv::COLOR_GRAY2RGB); 
-    cv::cvtColor(imgLT2, img4, cv::COLOR_GRAY2RGB);
-    /* annotate frame
-    */
-    std::string text[4] = {"imgLT1", "imgRT1", "imgRT2", "imgLT2"};
-    cv::putText(img1, text[0], cv::Point(20, 40), cv::FONT_HERSHEY_DUPLEX, 
-                1, cv::Scalar(255, 255, 255), 1);
-    cv::putText(img2, text[1], cv::Point(20, 40), cv::FONT_HERSHEY_DUPLEX, 
-                1, cv::Scalar(255, 255, 255), 1);
-    cv::putText(img3, text[2], cv::Point(20, 40), cv::FONT_HERSHEY_DUPLEX, 
-                1, cv::Scalar(255, 255, 255), 1);
-    cv::putText(img4, text[3], cv::Point(20, 40), cv::FONT_HERSHEY_DUPLEX, 
-                1, cv::Scalar(255, 255, 255), 1);
-
-    /* mark feature in frame before connecting lines
-    */
-    cv::circle(img1, fLT1[idx], 5, CV_RGB(0, 0, 255), 2);
-    cv::circle(img1, fLT1Re[idx], 10, CV_RGB(255, 0, 0), 2);
-    cv::circle(img2, fRT1[idx], 5, CV_RGB(0, 0, 255), 2);
-    cv::circle(img3, fRT2[idx], 5, CV_RGB(0, 0, 255), 2);
-    cv::circle(img4, fLT2[idx], 5, CV_RGB(0, 0, 255), 2);
-
-    cv::Mat imgPair1, imgPair2;
-    cv::hconcat(img1, img2, imgPair1);
-    /* connect f1 to f2
-    */
-    cv::line(imgPair1, fLT1[idx], cv::Point(frameW + fRT1[idx].x, fRT1[idx].y), 
-    cv::Scalar(0, 255, 0), 2);
-    /* connect f3 to f4
-    */
-    cv::hconcat(img4, img3, imgPair2);
-    cv::line(imgPair2, fLT2[idx], cv::Point(frameW + fRT2[idx].x, fRT2[idx].y), 
-    cv::Scalar(0, 255, 0), 2);    
-
-    cv::Mat imgQuad;
-    cv::vconcat(imgPair1, imgPair2, imgQuad);
-    /* connect f2 to f3
-    */
-    cv::line(imgQuad, cv::Point(frameW + fRT1[idx].x, fRT1[idx].y), 
-                      cv::Point(frameW + fRT2[idx].x, frameH + fRT2[idx].y), 
-                      cv::Scalar(0, 255, 0), 2);
-    /* connect f1 to f4
-    */
-    cv::line(imgQuad, cv::Point(fLT1Re[idx].x, fLT1Re[idx].y), 
-                      cv::Point(fLT2[idx].x, frameH + fLT2[idx].y), 
-                      cv::Scalar(0, 0, 255), 2);    
-
-    imshow("Full Circular Matching", imgQuad);
-    cv::waitKey(0);
-}

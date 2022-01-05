@@ -11,7 +11,7 @@ int main(void){
 
     /* main loop
     */
-    for(int i = 1; i < numFrames; i++){
+    for(int i = 0; i < numFrames-1; i++){
         /* read stereo image at t and t+1
         */
         VO.readStereoImagesT1T2(i);
@@ -28,7 +28,7 @@ int main(void){
         std::vector<cv::Point2f> featurePointsT2 = VO.matchFeatureKLT(featurePointsT1);
         /* triangulate 3d points
         */
-        
+
     }
     return 0;
 }
