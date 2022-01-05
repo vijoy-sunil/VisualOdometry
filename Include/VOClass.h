@@ -7,6 +7,10 @@
 
 class VOClass{
     private:
+        /* input frame dimensions
+        */
+        int frameW;
+        int frameH;
         /* 3x4 projection matrix of camera1 (left) and camera2
          * (right); we call the cameras CL and CR
          * This consists of both intrinsic and extrinsic params, 
@@ -31,6 +35,21 @@ class VOClass{
         /* extract R and T from extrinsic matrix
         */
         void extractRT(cv::Mat& R, cv::Mat& T);
+        /* check if a feature is out of bounds
+        */
+        bool isOutOfBounds(cv::Point2f featurePoint);
+        /* update status vector for out of bounds points
+        */
+        void markInvalidFeaturesBounds(std::vector<cv::Point2f> featurePoints, 
+        std::vector<unsigned char>& status);
+        /* get number of valid matches (count of one's) in status vector
+        */
+        int validMatches(std::vector<unsigned char> status);
+        /* remove invalid features based on status vector
+        */
+        void removeInvalidFeatures(std::vector<cv::Point2f>& featurePointsPrev, 
+                                   std::vector<cv::Point2f>& featurePointsCurrent, 
+                                   std::vector<unsigned char> status);
 
     public:
         /* we need to hold 4 images at a time; 2x at time t and 
@@ -61,13 +80,22 @@ class VOClass{
         std::vector<cv::Point2f> getFeaturesFAST(cv::Mat img);
         /* feature matching
         */
-        void matchFeatureKLT(std::vector<cv::Point2f>& featurePointsLT1);
+        std::vector<cv::Point2f> matchFeatureKLT(std::vector<cv::Point2f> &featurePointsLT1);
         /* test fns
         */
         void testShowStereoImage(cv::Mat imgLeft, cv::Mat imgRight, int frameNumber);
         void testShowDisparityImage(cv::Mat imgLeft, cv::Mat imgRight, cv::Mat disparityMap);
         void testShowGroundTruthTrajectory(void);
         void testShowDetectedFeatures(cv::Mat img, std::vector<cv::Point2f> featurePoints);
+        void testShowCirculatMatchingPair(cv::Mat img, 
+                                          std::vector<cv::Point2f> featurePointsCurrent, 
+                                          std::vector<cv::Point2f> featurePointsNext, 
+                                          std::vector<unsigned char> status);
+        void testShowCirculatMatchingFull(std::vector<cv::Point2f> fLT1, 
+                                          std::vector<cv::Point2f> fRT1, 
+                                          std::vector<cv::Point2f> fRT2, 
+                                          std::vector<cv::Point2f> fLT2,
+                                          std::vector<cv::Point2f> fLT1Re);
 };
 
 #endif /* VOCLASS_H
