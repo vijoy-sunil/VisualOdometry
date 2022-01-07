@@ -22,7 +22,6 @@
                 "-l", "opencv_imgproc",
                 "-l", "opencv_features2d",
                 "-l", "opencv_video",
-                "-l", "opencv_viz",
 
                 "${workspaceFolder}/Source/Logger.cpp",
 				"${workspaceFolder}/Source/main.cpp",

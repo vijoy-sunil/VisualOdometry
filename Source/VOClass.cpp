@@ -2,7 +2,7 @@
 #include "../Include/Logger.h"
 #include "../Include/Utils.h"
 #include "../Include/Constants.h"
-#include <opencv2/viz.hpp>
+#include <cmath>
 #include <fstream>
 
 VOClass::VOClass(void){
@@ -119,6 +119,7 @@ bool VOClass::getProjectionMatrices(const std::string calibrationFile){
 
 /* this matrix is to be used to convert to feature points to 3d world
  * coordinates
+ * Tx (baseline) is in meters and all others are in pixels
  *  _                        _
  *  | 1    0    0      -cx    |
  *  | 0    1    0      -cy    |
@@ -129,6 +130,8 @@ bool VOClass::getProjectionMatrices(const std::string calibrationFile){
 void VOClass::getQMatrix(void){
     float cx = projectionCL.at<float>(0, 2);
     float cy = projectionCL.at<float>(1, 2);
+    /* fu and fv are the same here
+    */
     float f  = projectionCL.at<float>(0, 0);
     float tx = (projectionCR.at<float>(0, 3))/(-1 * f);
 
@@ -137,7 +140,11 @@ void VOClass::getQMatrix(void){
                       0,    0,    0,     f,
                       0,    0, -(1/tx),  0 
                       }; 
-    qMat = cv::Mat(4, 4, CV_32F, data);
+    for(int r = 0; r < 4; r++){
+        for(int c = 0; c < 4; c++){
+            qMat.at<float>(r, c) = data[r*4 + c];
+        }
+    }
 
     Logger.addLog(Logger.levels[INFO], "Constructed qMat");
     for(int r = 0; r < 4; r++){
@@ -250,7 +257,7 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
     /* Matched block size. It must be an odd number >=1 . Normally, it 
      * should be somewhere in the 3..11 range.
     */
-    int blockSize = 5;
+    int blockSize = 11;
     /* Parameters controlling the disparity smoothness, the larger the 
      * values are, the smoother the disparity is. P2 must be > P1. The
      * recommended values for P1 = 8 * numChannels * blockSize^2, 
@@ -270,13 +277,34 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
     /* compute disparity map
     */
     cv::Mat disparityMap;
+    /* Output disparity map has the same size as the input images. When 
+     * disptype==CV_16S, the map is a 16-bit signed single-channel image, 
+     * containing disparity values scaled by 16. To get the true disparity 
+     * values from such fixed-point representation, you will need to divide 
+     * each disp element by 16. So if you've chosen disptype = CV_16S during 
+     * computation, you can access a pixel at pixel-position (X,Y) by
+     * 
+     * short pixVal = disparity.at<short>(Y,X);
+     * while the disparity value is
+     * float disparity = pixVal / 16.0f;
+     * 
+     * If disptype==CV_32F, the disparity map will already contain the real 
+     * disparity values on output. if you've chosen disptype = CV_32F during 
+     * computation, you can access the disparity directly:
+     * 
+     * float disparity = disparity.at<float>(Y,X)
+    */
     pStereo->compute(leftImg, rightImg, disparityMap);
-    Logger.addLog(Logger.levels[INFO], "Computed disparity map");
+    Logger.addLog(Logger.levels[INFO], "Computed disparity map", disparityMap.type());
+
+    cv::Mat trueDisparityMap;
+    disparityMap.convertTo(trueDisparityMap, CV_32F, 1.0f/16.0f);
+    Logger.addLog(Logger.levels[INFO], "Computed true disparity map", trueDisparityMap.type());
 
 #if 0
-    testShowDisparityImage(leftImg, rightImg, disparityMap);
+    testShowDisparityImage(leftImg, rightImg, trueDisparityMap);
 #endif
-    return disparityMap;
+    return trueDisparityMap;
 }
 
 /* FAST feature detection for detecting corners
@@ -310,7 +338,7 @@ std::vector<cv::Point2f> VOClass::getFeaturesFAST(cv::Mat img){
     Logger.addLog(Logger.levels[INFO], "Computed feature vector", featurePoints.size());
 
 #if 0
-    testShowDetectedFeatures(img, featurePoints);
+    testShowDetectedFeatures(img, featurePointsRounded);
 #endif
     return featurePoints;
 }
@@ -435,16 +463,122 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
     }
     int numCommonFeatures = fLT1.size();
     Logger.addLog(Logger.levels[INFO], "Extracted common features", numCommonFeatures);
-
 #if 0
     testShowCirculatMatchingFull(fLT1, fRT1, fRT2, fLT2, fLT1Re);
 #endif
 
+    /* Loop closure; if fLT1 and fLT1Re are the same points then
+     * those features are stable
+    */
+    std::vector<cv::Point2f> fLT1ReOffset, flT2Offset;
+    int threshold = 5;
+    for(int i = 0; i < numCommonFeatures; i++){
+        int offset = std::max(std::abs(fLT1[i].x - fLT1Re[i].x), 
+                              std::abs(fLT1[i].y - fLT1Re[i].y));
+
+        if(offset < threshold){
+            /* round fLT1Re to int
+            */
+            int x = round(fLT1Re[i].x);
+            int y = round(fLT1Re[i].y);
+            fLT1ReOffset.push_back(cv::Point2f(x, y));
+            /* use the same features in fLT2, this is to maintain a 
+             * 1:1 correspondence
+            */
+            flT2Offset.push_back(fLT2[i]);
+#if 0
+        Logger.addLog(Logger.levels[DEBUG], fLT1[i].x, fLT1Re[i].x, fLT1[i].y, fLT1Re[i].y);
+#endif
+        }
+    }
+    Logger.addLog(Logger.levels[INFO], "Extracted stable features", fLT1ReOffset.size(),
+                                                                    flT2Offset.size());
+#if 0
+    testShowDetectedFeatures(imgLT1, fLT1ReOffset);
+    testShowDetectedFeatures(imgLT2, flT2Offset);
+#endif
     /* return the final output after removing invalid features
      * the matching features between LT1 and LT2 are fLT1Re and fLT2
     */
-    featurePointsLT1 = fLT1Re;
-    return fLT2;
+    featurePointsLT1 = fLT1ReOffset;
+    return flT2Offset;
 }
+
+/* triangulation; convert 2d feature points to 3d world points
+*/
+std::vector<cv::Point3f> VOClass::get3DPoints(std::vector<cv::Point2f> featurePoints, 
+                                              cv::Mat disparityMap){
+    std::vector<cv::Point3f> points3D;
+    int numFeatures = featurePoints.size();
+    cv::Mat point2D = cv::Mat::zeros(4, 1, CV_32F);
+    cv::Mat point3DHC = cv::Mat::zeros(4, 1, CV_32F);
+
+    /* Q (4x4) * (u, v, disp, 1) = 3d point (4x1)
+    */
+    for(int i = 0; i < numFeatures; i++){
+        /* construct the 4x1 vector
+        */
+        point2D.at<float>(0, 0) = featurePoints[i].x;
+        point2D.at<float>(1, 0) = featurePoints[i].y;
+        point2D.at<float>(2, 0) = disparityMap.at<float>(featurePoints[i].x, featurePoints[i].y);
+        /* discard points with <=0 disparity
+        */
+        if(point2D.at<float>(2, 0) <= 0)
+            continue;
+
+        point2D.at<float>(3, 0) = 1;
+        /* multiply to get 4x1 vector
+        */
+        point3DHC = qMat * point2D;
+        /* divide by scale factor
+        */
+        cv::Point3f point3DNonHC;
+        point3DNonHC.x = point3DHC.at<float>(0, 0)/point3DHC.at<float>(3, 0);
+        point3DNonHC.y = point3DHC.at<float>(1, 0)/point3DHC.at<float>(3, 0);
+        point3DNonHC.z = point3DHC.at<float>(2, 0)/point3DHC.at<float>(3, 0);
+
+        points3D.push_back(point3DNonHC);
+#if 0
+        Logger.addLog(Logger.levels[TEST], "qMat (4x4) x [u,v,disp,1]");
+        Logger.addLog(Logger.levels[TEST], "qMat (4x4)");
+        for(int r = 0; r < 4; r++){
+            Logger.addLog(Logger.levels[TEST], qMat.at<float>(r, 0), 
+                                               qMat.at<float>(r, 1), 
+                                               qMat.at<float>(r, 2), 
+                                               qMat.at<float>(r, 3));
+        }
+        Logger.addLog(Logger.levels[TEST], "[u,v,disp,1]");
+        for(int r = 0; r < 4; r++){
+            Logger.addLog(Logger.levels[TEST], point2D.at<float>(r, 0)); 
+        }
+        Logger.addLog(Logger.levels[TEST], "Homogeneous 3D point");
+        for(int r = 0; r < 4; r++){
+            Logger.addLog(Logger.levels[TEST], point3DHC.at<float>(r, 0)); 
+        }
+        Logger.addLog(Logger.levels[TEST], "Non homogeneous 3D point");
+        Logger.addLog(Logger.levels[TEST], point3DNonHC.x, point3DNonHC.y, point3DNonHC.z);
+#endif
+    }
+
+#if 1
+        /* alternative method to create point cloud
+        */
+        cv::Mat pointCloud(disparityMap.size(),CV_32FC3);
+        cv::reprojectImageTo3D(disparityMap, pointCloud, qMat, false, CV_32F);
+        /* extract color data from img
+        */
+        cv::Mat colors;
+        cv::cvtColor(imgLT1, colors, cv::COLOR_GRAY2RGB);
+        imshow("3D Point Cloud", colors);
+        cv::waitKey(0);
+        /* write to file
+        */
+        
+#endif
+
+    Logger.addLog(Logger.levels[INFO], "Computed 3D points", points3D.size());
+    return points3D;    
+}
+
 
 

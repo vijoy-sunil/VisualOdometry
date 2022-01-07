@@ -12,8 +12,10 @@
 [ DEB ] 0 0 0 718.856 
 [ DEB ] 0 0 -1.86162 0 
 [ INF ] Constructed ground truth trajectory 4541 
-[ INF ] Computed disparity map 
-[ INF ] Computed disparity map 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
 [ INF ] Computed feature vector 4607 
 [ INF ] Circular matching complete 
 [ INF ] Feature vector sizes 4607 4607 4607 4607 4607 
@@ -21,3 +23,6 @@
 [ INF ] Status vector valid points 4496 4262 4238 4291 
 [ INF ] Status vector valid points Bounds filter 4458 4208 4199 4290 
 [ INF ] Extracted common features 4178 
+[ INF ] Extracted stable features 3744 3744 
+[ INF ] Computed 3D points 3288 
+[ INF ] Computed 3D points 1958 

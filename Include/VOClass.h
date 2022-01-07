@@ -35,9 +35,6 @@ class VOClass{
         /* Q matrix
         */
         cv::Mat qMat = cv::Mat::zeros(4, 4, CV_32F);
-        /* read from projection matrix
-        */
-        void constructQMatrix(void);
         /* extract R and T from extrinsic matrix
         */
         void extractRT(cv::Mat& R, cv::Mat& T);
@@ -90,6 +87,11 @@ class VOClass{
         /* feature matching
         */
         std::vector<cv::Point2f> matchFeatureKLT(std::vector<cv::Point2f> &featurePointsLT1);
+        /* get depth from disparity; triangulation
+        */
+        std::vector<cv::Point3f> get3DPoints(std::vector<cv::Point2f> featurePoints, 
+                                             cv::Mat disparityMap);
+
         /* test fns
         */
         void testShowStereoImage(cv::Mat imgLeft, cv::Mat imgRight, int frameNumber);
