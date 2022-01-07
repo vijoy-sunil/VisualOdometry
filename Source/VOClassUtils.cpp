@@ -1,5 +1,7 @@
 #include "../Include/VOClass.h"
 #include "../Include/Utils.h"
+#include "../Include/Logger.h"
+#include "../Include/Constants.h"
 
 void VOClass::constructProjectionMatrix(std::string line, cv::Mat& projectionMat){
     /* split line to words
@@ -93,4 +95,50 @@ void VOClass::removeInvalidFeatures(std::vector<cv::Point2f>& featurePointsPrev,
     }
     featurePointsPrev = validPointsPrev;
     featurePointsCurrent = validPointsCurrent;
+}
+
+void VOClass::writeToPLY(std::vector<cv::Point3f> pointCloud, cv::Mat colors){
+    /* write to file
+    */
+    std::ofstream plyFile;
+    plyFile.open(plyFilePath);
+    if(plyFile.is_open()){
+            /* file header
+            */
+            plyFile<<"ply"<<std::endl;
+            plyFile<<"format ascii 1.0"<<std::endl;
+            plyFile<<"element vertex "<<pointCloud.size()<<std::endl;
+            plyFile<<"property float x"<<std::endl;
+            plyFile<<"property float y"<<std::endl;
+            plyFile<<"property float z"<<std::endl;
+            plyFile<<"property uchar red"<<std::endl;
+            plyFile<<"property uchar green"<<std::endl;
+            plyFile<<"property uchar blue"<<std::endl;
+            plyFile<<"end_header"<<std::endl;
+            /* file contents
+             * x, y, z, r, g, b
+            */
+            
+            for(int i = 0; i < pointCloud.size(); i++){
+                /*
+                float x = pointCloud[i].x;
+                float y = pointCloud[i].y;
+                float z = pointCloud[i].z;
+                
+                plyFile<<x<<" "<<y<<" "<<z<<" "<<std::endl;
+                */
+                /* color values
+                */
+                /*
+                cv::Vec3b color = colors.at<cv::Vec3b>(x, y);
+                plyFile<<(int)color.val[0]<<" "
+                    <<(int)color.val[1]<<" "
+                    <<(int)color.val[2]<<std::endl;
+                */
+            }
+    }
+    else{
+        Logger.addLog(Logger.levels[ERROR], "Unable to open .ply file");
+        assert(false);
+    }
 }

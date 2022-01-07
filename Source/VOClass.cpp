@@ -302,7 +302,7 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
     Logger.addLog(Logger.levels[INFO], "Computed true disparity map", trueDisparityMap.type());
 
 #if 0
-    testShowDisparityImage(leftImg, rightImg, trueDisparityMap);
+    testShowDisparityImage(leftImg, rightImg, disparityMap);
 #endif
     return trueDisparityMap;
 }
@@ -338,7 +338,7 @@ std::vector<cv::Point2f> VOClass::getFeaturesFAST(cv::Mat img){
     Logger.addLog(Logger.levels[INFO], "Computed feature vector", featurePoints.size());
 
 #if 0
-    testShowDetectedFeatures(img, featurePointsRounded);
+    testShowDetectedFeatures(img, featurePoints);
 #endif
     return featurePoints;
 }
@@ -371,8 +371,8 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
      * search algorithm (after the specified maximum number of iterations maxCount 
      * or when the search window moves by less than epsilon) in the pyramid.
     */
-    const int maxCount = 30;
-    const float epsilon = 0.01;
+    const int maxCount = 50;
+    const float epsilon = 0.03;
     cv::TermCriteria termCrit = cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 
                                                  maxCount, epsilon);
     
@@ -403,7 +403,7 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
      * two levels are used, and so on.
     */
     std::vector<float> err;                    
-    cv::Size winSize = cv::Size(21,21); 
+    cv::Size winSize = cv::Size(15,15); 
     const int pyramidLevels = 3;
 
     cv::calcOpticalFlowPyrLK(imgLT1, imgRT1, featurePointsLT1, featurePointsRT1, 
@@ -539,7 +539,7 @@ std::vector<cv::Point3f> VOClass::get3DPoints(std::vector<cv::Point2f> featurePo
 
         points3D.push_back(point3DNonHC);
 #if 0
-        Logger.addLog(Logger.levels[TEST], "qMat (4x4) x [u,v,disp,1]");
+        Logger.addLog(Logger.levels[TEST], "3d point calculation");
         Logger.addLog(Logger.levels[TEST], "qMat (4x4)");
         for(int r = 0; r < 4; r++){
             Logger.addLog(Logger.levels[TEST], qMat.at<float>(r, 0), 
@@ -559,23 +559,11 @@ std::vector<cv::Point3f> VOClass::get3DPoints(std::vector<cv::Point2f> featurePo
         Logger.addLog(Logger.levels[TEST], point3DNonHC.x, point3DNonHC.y, point3DNonHC.z);
 #endif
     }
-
-#if 1
-        /* alternative method to create point cloud
-        */
-        cv::Mat pointCloud(disparityMap.size(),CV_32FC3);
-        cv::reprojectImageTo3D(disparityMap, pointCloud, qMat, false, CV_32F);
-        /* extract color data from img
-        */
-        cv::Mat colors;
-        cv::cvtColor(imgLT1, colors, cv::COLOR_GRAY2RGB);
-        imshow("3D Point Cloud", colors);
-        cv::waitKey(0);
-        /* write to file
-        */
-        
+#if 0
+    cv::Mat colors;
+    cv::cvtColor(imgLT1, colors, cv::COLOR_GRAY2RGB);
+    writeToPLY(points3D, colors);
 #endif
-
     Logger.addLog(Logger.levels[INFO], "Computed 3D points", points3D.size());
     return points3D;    
 }

@@ -5,12 +5,13 @@
 
 /* choose the set of images to use in the KITTI dataset
 */
-const std::string sequenceID = "00";
+const std::string sequenceID = "04";
 const int numFrames = 2;
 /* file names
 */
 const std::string calibrationFile= "calib.txt";
 const std::string dumpFile = "log.txt";
+const std::string plyFile = "pointCloud.ply";
 /* paths
 */
 const std::string datasetPath = "../../Data/sequences/";
@@ -24,5 +25,6 @@ const std::string groundTruthFilePath = posePath + sequenceID + ".txt";
 const std::string leftImagesPath = datasetPath + sequenceID + "/" + leftImagesDir;
 const std::string rightImagesPath = datasetPath + sequenceID + "/" + rightImagesDir;
 const std::string dumpFilePath = dataPath + dumpFile;
+const std::string plyFilePath = dataPath + plyFile;
 #endif /* CONSTANTS_H
 */

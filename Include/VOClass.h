@@ -53,7 +53,10 @@ class VOClass{
         void removeInvalidFeatures(std::vector<cv::Point2f>& featurePointsPrev, 
                                    std::vector<cv::Point2f>& featurePointsCurrent, 
                                    std::vector<unsigned char> status);
-
+        /* visualize point cloud in meshlab by writing to .ply file
+         * Polygon File Format
+        */
+        void writeToPLY(std::vector<cv::Point3f> pointCloud, cv::Mat colors);
     public:
         /* we need to hold 4 images at a time; 2x at time t and 
          * 2x at time (t+1)
