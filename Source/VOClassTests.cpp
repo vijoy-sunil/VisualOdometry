@@ -19,7 +19,7 @@ void VOClass::testShowStereoImage(cv::Mat imgLeft, cv::Mat imgRight, int frameNu
     cv::waitKey(0);
 }
 
-/* read stereo pair, compute disparity and display them
+/* stereo pair, disparity map
 */
 void VOClass::testShowDisparityImage(cv::Mat imgLeft, cv::Mat imgRight, cv::Mat disparityMap){
     Logger.addLog(Logger.levels[TEST], "Show disparity and stereo pair images");
@@ -27,14 +27,31 @@ void VOClass::testShowDisparityImage(cv::Mat imgLeft, cv::Mat imgRight, cv::Mat 
     cv::Mat imgPair, imgTuple;
     cv::vconcat(imgLeft, imgRight, imgPair);
 
-    /* disparityMap type is of type CV_16S and imgPair is of type CV_8U, to
-     * concat, both of them need to be of the same type
+    /* imgPair is of type CV_8U, to concat, both of them need to be of the 
+     * same type
     */
     cv::Mat disparityMapTypeChanged;
-    disparityMap.convertTo(disparityMapTypeChanged, CV_8UC1);
+    disparityMap.convertTo(disparityMapTypeChanged, CV_8U);
 
     cv::vconcat(imgPair, disparityMapTypeChanged, imgTuple);
     imshow("Disparity Map", imgTuple);
+    cv::waitKey(0);
+}
+
+/* disparity, depth map
+*/
+void VOClass::testShowDepthImage(cv::Mat disparityMap, cv::Mat depthMap){
+    Logger.addLog(Logger.levels[TEST], "Show disparity and depth images");
+
+    cv::Mat imgPair;
+    /* convert to cv_8U to display properly
+    */
+    cv::Mat disparityMapTypeChanged, depthMapTypeChanged;
+    disparityMap.convertTo(disparityMapTypeChanged, CV_8U);
+    depthMap.convertTo(depthMapTypeChanged, CV_8U);
+
+    cv::vconcat(disparityMapTypeChanged, depthMapTypeChanged, imgPair);
+    imshow("Depth Map", imgPair);
     cv::waitKey(0);
 }
 

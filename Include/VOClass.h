@@ -58,6 +58,9 @@ class VOClass{
          * https://www.meshlab.net/
         */
         void writeToPLY(std::vector<cv::Point3f> pointCloud, cv::Mat colors);
+        /* compute histogram
+        */
+        void computeHistogram(cv::Mat src, int maxVal);
     public:
         /* we need to hold 4 images at a time; 2x at time t and 
          * 2x at time (t+1)
@@ -85,6 +88,9 @@ class VOClass{
         /* compute disparity
         */
         cv::Mat computeDisparity(cv::Mat leftImg, cv::Mat rightImg);
+        /* disparity to depth map
+        */
+        cv::Mat computeDepthMap(cv::Mat disparityMap);
         /* feature detection
         */
         std::vector<cv::Point2f> getFeaturesFAST(cv::Mat img);
@@ -100,6 +106,7 @@ class VOClass{
         */
         void testShowStereoImage(cv::Mat imgLeft, cv::Mat imgRight, int frameNumber);
         void testShowDisparityImage(cv::Mat imgLeft, cv::Mat imgRight, cv::Mat disparityMap);
+        void testShowDepthImage(cv::Mat disparityMap, cv::Mat depthMap);
         void testShowGroundTruthTrajectory(void);
         void testShowDetectedFeatures(cv::Mat img, std::vector<cv::Point2f> featurePoints);
         void testShowCirculatMatchingPair(cv::Mat img, 

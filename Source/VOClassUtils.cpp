@@ -153,3 +153,28 @@ void VOClass::writeToPLY(std::vector<cv::Point3f> pointCloud, cv::Mat colors){
         assert(false);
     }
 }
+
+void VOClass::computeHistogram(cv::Mat src, int maxVal){
+    /* src is a single channel image
+    */
+    /* we set the hist array size to maxVal + 1 to include the maxVal
+     * itself in hitogram
+    */
+    int *hist = (int*)calloc((maxVal + 1), sizeof(int));
+    for(int r = 0; r < src.rows; r++){
+        for(int c = 0; c < src.cols; c++){
+            int val = src.at<float>(r, c);
+            hist[val]++;
+        }
+    }
+    /* log histogram 
+    */
+    Logger.addLog(Logger.levels[DEBUG], "Computed histogram");
+    for(int i = 0; i <= maxVal; i++){
+        if(hist[i] != 0)
+            Logger.addLog(Logger.levels[DEBUG], i, hist[i]);
+    }
+    /* deallocate
+    */
+    free(hist);
+}

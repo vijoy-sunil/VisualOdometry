@@ -428,12 +428,55 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
     disparityMap.convertTo(trueDisparityMap, CV_32F, 1.0f/16.0f);
     Logger.addLog(Logger.levels[INFO], "Computed true disparity map", trueDisparityMap.type());
 
-#if 1
+#if 0
     cv::Mat disparityMap8Bit;
     trueDisparityMap.convertTo(disparityMap8Bit, CV_8U);
     testShowDisparityImage(leftImg, rightImg, disparityMap8Bit);
 #endif
     return trueDisparityMap;
+}
+
+/* convert disparity map to depth map using f, Tx, d
+*/
+cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
+    /* compute fx from intrinsic matrix (for left camera)
+    */
+    float focalLengthX = projectionCL.at<float>(0, 0);
+    /* compute Tx (baseline)
+    */
+    float baseline = (projectionCR.at<float>(0, 3))/ (-1 * focalLengthX);
+    /* avoid division by 0 since the disparityMap might have 0.0 or -1.0 values; 
+     * we change these values to 0.1 which would result in large depth. we can
+     * filter these out after 
+    */
+    for(int r = 0; r < frameH; r++){
+        for(int c = 0; c < frameW; c++){
+            float d = disparityMap.at<float>(r, c);
+            if(d == 0.0 || d == -1.0)
+                disparityMap.at<float>(r, c) = 0.1;
+        }
+    }
+    /* create an empty depth map with same shape as disparityMap
+    */
+    float maxDepth = 0, minDepth = INT_MAX;
+    cv::Mat depthMap = cv::Mat::ones(disparityMap.rows, disparityMap.cols, CV_32F);
+    for(int r = 0; r < frameH; r++){
+        for(int c = 0; c < frameW; c++){
+            float d = disparityMap.at<float>(r, c);
+            depthMap.at<float>(r, c) = focalLengthX * baseline/d;   
+            /* compute max depth and min depth; for info purpose
+            */   
+            maxDepth = std::max(depthMap.at<float>(r, c), maxDepth);
+            minDepth = std::min(depthMap.at<float>(r, c), minDepth);
+        }
+    }
+    Logger.addLog(Logger.levels[INFO], "Computed depth map", focalLengthX, baseline, 
+                                                             minDepth, maxDepth);
+#if 0
+    computeHistogram(depthMap, maxDepth);
+    testShowDepthImage(disparityMap, depthMap);
+#endif
+    return depthMap;
 }
 
 /* FAST feature detection for detecting corners
@@ -668,24 +711,24 @@ std::vector<cv::Point3f> VOClass::get3DPoints(std::vector<cv::Point2f> featurePo
 
         points3D.push_back(point3DNonHC);
 #if 0
-        Logger.addLog(Logger.levels[TEST], "3d point calculation");
-        Logger.addLog(Logger.levels[TEST], "qMat (4x4)");
+        Logger.addLog(Logger.levels[DEBUG], "3d point calculation");
+        Logger.addLog(Logger.levels[DEBUG], "qMat (4x4)");
         for(int r = 0; r < 4; r++){
-            Logger.addLog(Logger.levels[TEST], qMat.at<float>(r, 0), 
+            Logger.addLog(Logger.levels[DEBUG], qMat.at<float>(r, 0), 
                                                qMat.at<float>(r, 1), 
                                                qMat.at<float>(r, 2), 
                                                qMat.at<float>(r, 3));
         }
-        Logger.addLog(Logger.levels[TEST], "[u,v,disp,1]");
+        Logger.addLog(Logger.levels[DEBUG], "[u,v,disp,1]");
         for(int r = 0; r < 4; r++){
-            Logger.addLog(Logger.levels[TEST], point2D.at<float>(r, 0)); 
+            Logger.addLog(Logger.levels[DEBUG], point2D.at<float>(r, 0)); 
         }
-        Logger.addLog(Logger.levels[TEST], "Homogeneous 3D point");
+        Logger.addLog(Logger.levels[DEBUG], "Homogeneous 3D point");
         for(int r = 0; r < 4; r++){
-            Logger.addLog(Logger.levels[TEST], point3DHC.at<float>(r, 0)); 
+            Logger.addLog(Logger.levels[DEBUG], point3DHC.at<float>(r, 0)); 
         }
-        Logger.addLog(Logger.levels[TEST], "Non homogeneous 3D point");
-        Logger.addLog(Logger.levels[TEST], point3DNonHC.x, point3DNonHC.y, point3DNonHC.z);
+        Logger.addLog(Logger.levels[DEBUG], "Non homogeneous 3D point");
+        Logger.addLog(Logger.levels[DEBUG], point3DNonHC.x, point3DNonHC.y, point3DNonHC.z);
 #endif
     }
 #if 0
