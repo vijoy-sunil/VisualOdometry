@@ -54,10 +54,10 @@ class VOClass{
          * Polygon File Format
          * https://www.meshlab.net/
         */
-        void writeToPLY(std::vector<cv::Point3f> pointCloud, cv::Mat colors);
+        void writeToPLY(cv::Mat pointCloud, cv::Mat colors, int depthThresh, int numVertices);
         /* compute histogram
         */
-        void computeHistogram(cv::Mat src, int maxVal);
+        int* computeHistogram(cv::Mat src, int maxVal);
     public:
         /* we need to hold 4 images at a time; 2x at time t and 
          * 2x at time (t+1)

@@ -146,7 +146,7 @@ bool VOClass::readStereoImagesT1T2(int frameNumber){
  * [3]
  * [1]]
  * 
- * We can do thisby using accessing the 14th pose from the ground truth (extrinsic 
+ * We can do this by using accessing the 14th pose from the ground truth (extrinsic 
  * matrix) and multiplying them
  * 
  * [R|t] * original point = [u, v, w] in camera frame
@@ -339,7 +339,7 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
     /* Matched block size. It must be an odd number >=1 . Normally, it 
      * should be somewhere in the 3..11 range.
     */
-    int _blockSize = 18;
+    int _blockSize = 11;
     /* Parameters controlling the disparity smoothness, the larger the 
      * values are, the smoother the disparity is. P2 must be > P1. The
      * recommended values for P1 = 8 * numChannels * blockSize^2, 
@@ -356,6 +356,7 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
     pStereo->setBlockSize(_blockSize);
     pStereo->setP1(_P1);
     pStereo->setP2(_P2);
+    pStereo->setMode(cv::StereoSGBM::MODE_SGBM_3WAY);
 
     /* compute disparity map
     */
@@ -435,14 +436,23 @@ cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     Logger.addLog(Logger.levels[INFO], "Computed depth map", focalLengthX, baseline, 
                                                              minDepth, maxDepth);
 #if 0
-    computeHistogram(depthMap, maxDepth);
     testShowDepthImage(disparityMap, depthMap);
 #endif
 
 #if 0
     cv::Mat colors;
+    /* use imgLT1 if we are passing in disparityMapT1, and imgLT2 if
+     * passing disparityMapT2
+    */
     cv::cvtColor(imgLT1, colors, cv::COLOR_GRAY2RGB);
-    writeToPLY(points3D, colors);
+
+    int *hist = computeHistogram(depthMap, maxDepth);
+    /* subtract elements with maxDepth since we will be filtering them
+     * from vertices list while writing to file
+    */
+    int numVertices = (depthMap.rows * depthMap.cols) - hist[(int)maxDepth];
+    writeToPLY(depthMap, colors, 3000, numVertices);
+    free(hist);
 #endif
     return depthMap;
 }

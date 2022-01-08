@@ -108,45 +108,46 @@ void VOClass::removeInvalidFeatures(std::vector<cv::Point2f>& featurePointsPrev,
     featurePointsCurrent = validPointsCurrent;
 }
 
-void VOClass::writeToPLY(std::vector<cv::Point3f> pointCloud, cv::Mat colors){
+void VOClass::writeToPLY(cv::Mat pointCloud, cv::Mat colors, int depthThresh, int numVertices){
     /* write to file
     */
     std::ofstream plyFile;
     plyFile.open(plyFilePath);
     if(plyFile.is_open()){
-            /* file header
-            */
-            plyFile<<"ply"<<std::endl;
-            plyFile<<"format ascii 1.0"<<std::endl;
-            plyFile<<"element vertex "<<pointCloud.size()<<std::endl;
-            plyFile<<"property float x"<<std::endl;
-            plyFile<<"property float y"<<std::endl;
-            plyFile<<"property float z"<<std::endl;
-            plyFile<<"property uchar red"<<std::endl;
-            plyFile<<"property uchar green"<<std::endl;
-            plyFile<<"property uchar blue"<<std::endl;
-            plyFile<<"end_header"<<std::endl;
-            /* file contents
-             * x, y, z, r, g, b
-            */
-            
-            for(int i = 0; i < pointCloud.size(); i++){
-                /*
-                float x = pointCloud[i].x;
-                float y = pointCloud[i].y;
-                float z = pointCloud[i].z;
-                
-                plyFile<<x<<" "<<y<<" "<<z<<" "<<std::endl;
+        /* file header
+        */
+        plyFile<<"ply"<<std::endl;
+        plyFile<<"format ascii 1.0"<<std::endl;
+        plyFile<<"element vertex "<<numVertices<<std::endl;
+        plyFile<<"property float x"<<std::endl;
+        plyFile<<"property float y"<<std::endl;
+        plyFile<<"property float z"<<std::endl;
+        plyFile<<"property uchar red"<<std::endl;
+        plyFile<<"property uchar green"<<std::endl;
+        plyFile<<"property uchar blue"<<std::endl;
+        plyFile<<"end_header"<<std::endl;
+        /* file contents
+            * x, y, z, r, g, b
+        */
+        for(int r = 0; r < pointCloud.rows; r++){
+            for(int c = 0; c < pointCloud.cols; c++){
+                /* vertices
                 */
+                float z = pointCloud.at<float>(r, c);
+                /* filer z values beyond the threshold
+                */
+                if(z > depthThresh)
+                    continue;
+                plyFile<<r<<" "<<c<<" "<<-z<<" ";
                 /* color values
                 */
-                /*
-                cv::Vec3b color = colors.at<cv::Vec3b>(x, y);
+                cv::Vec3b color = colors.at<cv::Vec3b>(r, c);
                 plyFile<<(int)color.val[0]<<" "
-                    <<(int)color.val[1]<<" "
-                    <<(int)color.val[2]<<std::endl;
-                */
-            }
+                       <<(int)color.val[1]<<" "
+                       <<(int)color.val[2]<<std::endl;
+            }  
+        }
+        Logger.addLog(Logger.levels[INFO], ".ply file write complete");
     }
     else{
         Logger.addLog(Logger.levels[ERROR], "Unable to open .ply file");
@@ -154,7 +155,7 @@ void VOClass::writeToPLY(std::vector<cv::Point3f> pointCloud, cv::Mat colors){
     }
 }
 
-void VOClass::computeHistogram(cv::Mat src, int maxVal){
+int* VOClass::computeHistogram(cv::Mat src, int maxVal){
     /* src is a single channel image
     */
     /* we set the hist array size to maxVal + 1 to include the maxVal
@@ -170,11 +171,11 @@ void VOClass::computeHistogram(cv::Mat src, int maxVal){
     /* log histogram 
     */
     Logger.addLog(Logger.levels[DEBUG], "Computed histogram");
+#if 0
     for(int i = 0; i <= maxVal; i++){
         if(hist[i] != 0)
             Logger.addLog(Logger.levels[DEBUG], i, hist[i]);
     }
-    /* deallocate
-    */
-    free(hist);
+#endif
+    return hist;
 }
