@@ -7,7 +7,6 @@ int main(void){
     /* read from input files
     */
     VO.getProjectionMatrices(calibrationFilePath);
-    VO.getQMatrix();
     VO.getGroundTruthPath(groundTruthFilePath);
 
     /* main loop
@@ -30,10 +29,6 @@ int main(void){
         /* match feature points imgLT1 -> imgLT2
         */
         std::vector<cv::Point2f> featurePointsT2 = VO.matchFeatureKLT(featurePointsT1);
-        /* triangulate 3d points in imgLT1 and imgLT2
-        */
-        std::vector<cv::Point3f> pointCloudT1 = VO.get3DPoints(featurePointsT1, disparityMapT1);
-        std::vector<cv::Point3f> pointCloudT2 = VO.get3DPoints(featurePointsT2, disparityMapT2);
     }
     return 0;
 }

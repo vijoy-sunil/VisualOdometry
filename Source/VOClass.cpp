@@ -234,44 +234,6 @@ bool VOClass::getProjectionMatrices(const std::string calibrationFile){
     }
 }
 
-/* this matrix is to be used to convert to feature points to 3d world
- * coordinates
- * Tx (baseline) is in meters and all others are in pixels
- *  _                        _
- *  | 1    0    0      -cx    |
- *  | 0    1    0      -cy    |
- *  | 0    0    0      f      |
- *  | 0    0   -1/Tx   0      |
- *  -                        - 
-*/
-void VOClass::getQMatrix(void){
-    float cx = projectionCL.at<float>(0, 2);
-    float cy = projectionCL.at<float>(1, 2);
-    /* fu and fv are the same here
-    */
-    float f  = projectionCL.at<float>(0, 0);
-    float tx = (projectionCR.at<float>(0, 3))/(-1 * f);
-
-    float data[16] = {1,    0,    0,    -cx, 
-                      0,    1,    0,    -cy,
-                      0,    0,    0,     f,
-                      0,    0, -(1/tx),  0 
-                      }; 
-    for(int r = 0; r < 4; r++){
-        for(int c = 0; c < 4; c++){
-            qMat.at<float>(r, c) = data[r*4 + c];
-        }
-    }
-
-    Logger.addLog(Logger.levels[INFO], "Constructed qMat");
-    for(int r = 0; r < 4; r++){
-        Logger.addLog(Logger.levels[DEBUG], qMat.at<float>(r, 0), 
-                                            qMat.at<float>(r, 1), 
-                                            qMat.at<float>(r, 2), 
-                                            qMat.at<float>(r, 3));
-    }
-}
-
 /* poses/XX.txt contains the 4x4 homogeneous matrix flattened out
  * to 12 elements; r11 r12 r13 tx r21 r22 r23 ty r31 r32 r33 tz
  *  _                _
@@ -476,6 +438,12 @@ cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     computeHistogram(depthMap, maxDepth);
     testShowDepthImage(disparityMap, depthMap);
 #endif
+
+#if 0
+    cv::Mat colors;
+    cv::cvtColor(imgLT1, colors, cv::COLOR_GRAY2RGB);
+    writeToPLY(points3D, colors);
+#endif
     return depthMap;
 }
 
@@ -675,70 +643,3 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
     featurePointsLT1 = fLT1ReOffset;
     return flT2Offset;
 }
-
-/* triangulation; convert 2d feature points to 3d world points
-*/
-std::vector<cv::Point3f> VOClass::get3DPoints(std::vector<cv::Point2f> featurePoints, 
-                                              cv::Mat disparityMap){
-    std::vector<cv::Point3f> points3D;
-    int numFeatures = featurePoints.size();
-    cv::Mat point2D = cv::Mat::zeros(4, 1, CV_32F);
-    cv::Mat point3DHC = cv::Mat::zeros(4, 1, CV_32F);
-
-    /* Q (4x4) * (u, v, disp, 1) = 3d point (4x1)
-    */
-    for(int i = 0; i < numFeatures; i++){
-        /* construct the 4x1 vector
-        */
-        point2D.at<float>(0, 0) = featurePoints[i].x;
-        point2D.at<float>(1, 0) = featurePoints[i].y;
-        point2D.at<float>(2, 0) = disparityMap.at<float>(featurePoints[i].x, featurePoints[i].y);
-        /* discard points with <=0 disparity
-        */
-        if(point2D.at<float>(2, 0) <= 0)
-            continue;
-
-        point2D.at<float>(3, 0) = 1;
-        /* multiply to get 4x1 vector
-        */
-        point3DHC = qMat * point2D;
-        /* divide by scale factor
-        */
-        cv::Point3f point3DNonHC;
-        point3DNonHC.x = point3DHC.at<float>(0, 0)/point3DHC.at<float>(3, 0);
-        point3DNonHC.y = point3DHC.at<float>(1, 0)/point3DHC.at<float>(3, 0);
-        point3DNonHC.z = point3DHC.at<float>(2, 0)/point3DHC.at<float>(3, 0);
-
-        points3D.push_back(point3DNonHC);
-#if 0
-        Logger.addLog(Logger.levels[DEBUG], "3d point calculation");
-        Logger.addLog(Logger.levels[DEBUG], "qMat (4x4)");
-        for(int r = 0; r < 4; r++){
-            Logger.addLog(Logger.levels[DEBUG], qMat.at<float>(r, 0), 
-                                               qMat.at<float>(r, 1), 
-                                               qMat.at<float>(r, 2), 
-                                               qMat.at<float>(r, 3));
-        }
-        Logger.addLog(Logger.levels[DEBUG], "[u,v,disp,1]");
-        for(int r = 0; r < 4; r++){
-            Logger.addLog(Logger.levels[DEBUG], point2D.at<float>(r, 0)); 
-        }
-        Logger.addLog(Logger.levels[DEBUG], "Homogeneous 3D point");
-        for(int r = 0; r < 4; r++){
-            Logger.addLog(Logger.levels[DEBUG], point3DHC.at<float>(r, 0)); 
-        }
-        Logger.addLog(Logger.levels[DEBUG], "Non homogeneous 3D point");
-        Logger.addLog(Logger.levels[DEBUG], point3DNonHC.x, point3DNonHC.y, point3DNonHC.z);
-#endif
-    }
-#if 0
-    cv::Mat colors;
-    cv::cvtColor(imgLT1, colors, cv::COLOR_GRAY2RGB);
-    writeToPLY(points3D, colors);
-#endif
-    Logger.addLog(Logger.levels[INFO], "Computed 3D points", points3D.size());
-    return points3D;    
-}
-
-
-
