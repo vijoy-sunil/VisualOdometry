@@ -16,9 +16,8 @@ VOClass::VOClass(void){
 VOClass::~VOClass(void){
 }
 
-/* this function will be called in a loop to read through all sets of 
- * images within a sequence directory frameNumber will go from 1 to 
- * sizeof(imageDir)
+/* this function will be called in a loop to read through all sets of images within 
+ * a sequence directory frameNumber will go from 0 to sizeof(imageDir)-1
 */
 bool VOClass::readStereoImagesT1T2(int frameNumber){
     /* construct image file name from frameNumber, and img
@@ -66,18 +65,136 @@ bool VOClass::readStereoImagesT1T2(int frameNumber){
 }
 
 /* calib.txt: Calibration data for the cameras
- * P0/P1 are the  3x4 projection matrices after rectification. Here P0 
- * denotes the left and P1 denotes the right camera. 
- * P2/P3 are left color camera and right color camera, which we won't be 
- * using here
+ * P0/P1 are the  3x4 projection matrices after rectification. Here P0 denotes the 
+ * left and P1 denotes the right camera. P2/P3 are left color camera and right color 
+ * camera, which we won't be using here
  * 
- * It is basically the intrinsic matrix plus baseline component with camera 0 
- * (left) as reference
+ * It is basically the intrinsic matrix plus baseline component with camera 0 (left) 
+ * as reference
  *  _                        _
  *  | fu    0   cx  -fu * bx |
  *  | 0     fv  cy  0        |
  *  | 0     0   0   1        |
- *  -                        - 
+ *  -                        -
+ * 
+ * NOTE: Normally, a camera's projection matrix take a 3D point in a global 
+ * coordinate frame and projects it onto pixel coordinates on THAT camera's 
+ * image frame. Rectified projection matrices are the opposite, and are designed 
+ * to map points in each camera's coordinate frame onto one single image plane: 
+ * that of the left camera. This means they are going in the opposite direction, 
+ * as these matrices are taking 3D points from the coordinate frame of the camera 
+ * they are associated with, and projecting them onto the image plane of the left 
+ * camera. 
+ * 
+ * NOTE: If the projection matrices provided were standard per-camera projection 
+ * matrices, we would expect the extrinsic matrix to take a point from the global 
+ * coordinate frame and tranform it into the frame of the camera. For example, if 
+ * we were to take the origin of the global coordinate frame (the origin of the 
+ * left grayscale camera) and translate it into the coordinate frame of the right 
+ * grayscale camera, we would expect to see an X coordinate of -0.54, since the 
+ * left camera's origin is 0.54 meters to the left of the right grayscale camera's 
+ * origin.
+ * 
+ * To test this, we can decompose the projection matrix given for the right camera 
+ * into k, R, and t.
+ * Intrinsic Matrix:
+ * [[718.856    0.     607.1928]
+ * [  0.     718.856  185.2157]
+ * [  0.       0.       1.    ]]
+ * Rotation Matrix:
+ * [[1. 0. 0.]
+ * [0. 1. 0.]
+ * [0. 0. 1.]]
+ * Translation Vector:
+ * [[ 0.5372]
+ * [ 0.    ]
+ * [0.     ]
+ * [ 1.    ]]
+ * 
+ * In this case, let's see what we get if we transform the origin of the global 
+ * coordinate frame (the origin of the left grayscale camera) using the tranformation/
+ * extrinsic matrix we got from this projection matrix. According to the schematic, 
+ * we should expect it to be 0.54m to the left (X = -0.54)
+ * But, we get
+ * [[ 0.5372]
+ * [ 0.    ]
+ * [0.     ]
+ * 
+ * And here we can see the issue: the X value is POSITIVE 0.54, which points 0.54m 
+ * to the right of the camera frame, which tells us that this projection matrix is 
+ * NOT actually referring to the right camera, it is referring to the left camera, 
+ * and treating the origin of the right camera as the global coordinate frame.
+ * 
+ * This is because it is a rectified projection matrix for a stereo rig, which is 
+ * intended to project points from the coordinate frames of multiple cameras onto 
+ * the SAME image plane, rather than the coordinates from one coordinate frame onto
+ * the image planes of multiple cameras.
+ * 
+ * Each rectified projection matrix will take (X, Y, Z, 1) homogeneous coordinates of 
+ * 3D points in the associated sensor's coordinate frame and translates them to pixel 
+ * locations (u, v, 1) on the image plane of the left grayscale camera.
+ * 
+ * Now we know what these calibration matrices are actually telling us, and that they 
+ * are in all in reference to the left grayscale camera's image plane
+ * 
+ * EXERCISE: Let's take some point measured with respect to the coordinate frame of the 
+ * left camera when it is in it's 14 pose of the sequence, and transform it onto the 
+ * image plane of the camera
+ * Original point:
+ * [[1]
+ * [2]
+ * [3]
+ * [1]]
+ * 
+ * We can do thisby using accessing the 14th pose from the ground truth (extrinsic 
+ * matrix) and multiplying them
+ * 
+ * [R|t] * original point = [u, v, w] in camera frame
+ * 'w' is the depth from camera
+ * 
+ * Transformed point:
+ * [[ 0.2706]
+ * [ 1.5461]
+ * [15.0755]]
+ * Depth from camera:
+ * [15.0755]
+ * 
+ * To project this 3D point onto the image plane, we could first apply the intrinsic 
+ * matrix, THEN divide by the depth, which would take us from meters, to pixel*meters, 
+ * then to pixels
+ * OR
+ * or we could just divide by the depth first, taking us into unitless measurements 
+ * by dividing meters by meters,then multiply by the intrinsic matrix, which would then 
+ * take us from unitless to pixels
+ * [[620.09802465 258.93763336   1.        ]]
+ * 
+ * Another thing that is done regularly is "normalizing" the pixel coordinates by 
+ * multiplying them by the inverse of the intrinsic matrix k, which brings us back into 
+ * unitless values, as we take pixel measurements and multiply them by the inverse of 
+ * pixel measurements.
+ * (which represent the 3D points projected onto a 2D plane which is 1 unit (unitless) 
+ * away from the origin of the camera down the Z axis)
+ * Normalized Coordinates: [[0.01795245 0.10255452 1.        ]]
+ * 
+ * it is interesting to see that if we take the normalized coordinates and multiply 
+ * them by their respective depths, we can reconstruct the original 3D position from
+ * the 2D projection of a point (as long as we know the depth)
+ * [[ 0.2706,  1.5461, 15.0755]]
+ * 
+ * And we are back to 3D coordinates in our camera frame. To get back to the 3D position 
+ * in our original coordinate frame, we can add a row of (0, 0, 0, 1) to the transformation 
+ * matrix (R|t) we used to make it homogeneous, then invert it, and finally dot it with the 
+ * restored 3D coordinates in the camera frame (note that we also need to add a 1 to the end 
+ * of these coordinates to make them homogeneous as well) 
+ * ([1., 2., 3., 1.])
+ * 
+ * And there we have it, we went from a 3D point on a coordinate frame, projected it to 
+ * pixel coordinates of a camera in a separate coordinate frame, reconstructed the metrics 
+ * using a known depth, and then reverse transformed the 3D point back into the original 
+ * frame by inverting a homogeneous version of the original transformation matrix used and 
+ * dotting it with the homogeneous 3D coordinates of the point in the camera's coordinate 
+ * frame.
+ * 
 */
 bool VOClass::getProjectionMatrices(const std::string calibrationFile){
     /* ifstream to read from file
@@ -184,8 +301,11 @@ bool VOClass::getGroundTruthPath(const std::string groundTruthFile){
              * world coordinate frame, you can transform the origin (0,0,0) of the 
              * camera0's local coordinate frame to the world coordinate
              * 
-             * ? = R * {0, 0, 0} + T
+             * ? = R * {0, 0, 0} + T; or the same calculation in homogeneous coords,
+             * [R|t] * [0, 0, 0, 1]
+             * 
              * This tells where the camera is located in the world coordinate.
+             * The resulting (x, y, z) will be in meteres
             */
             groundX.push_back(T.at<float>(0, 0));
             groundY.push_back(T.at<float>(1, 0));
@@ -248,32 +368,33 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
      * sometimes rectification algorithms can shift images, so this 
      * parameter needs to be adjusted accordingly.
     */
-    int minDisparity = 0;
+    int _minDisparity = 0;
     /* Maximum disparity minus minimum disparity. The value is always 
      * greater than zero. It must be divisible by 16 (implementation
      * requirement)
     */
-    int numDisparities = 32;
+    int _numDisparities = 96;
     /* Matched block size. It must be an odd number >=1 . Normally, it 
      * should be somewhere in the 3..11 range.
     */
-    int blockSize = 11;
+    int _blockSize = 18;
     /* Parameters controlling the disparity smoothness, the larger the 
      * values are, the smoother the disparity is. P2 must be > P1. The
      * recommended values for P1 = 8 * numChannels * blockSize^2, 
      * P2 = 32 * numChannels * blockSize^2 
     */
-    int P1 = 8 * 1 * blockSize * blockSize;
-    int P2 = 32 * 1 * blockSize * blockSize;
+    int _P1 = 8 * 1 * _blockSize * _blockSize;
+    int _P2 = 32 * 1 * _blockSize * _blockSize;
 
     /* create block matching object
     */
-    cv::Ptr<cv::StereoSGBM> pStereo = cv::StereoSGBM::create(minDisparity = minDisparity, 
-                                                             numDisparities = numDisparities, 
-                                                             blockSize = blockSize, 
-                                                             P1 = P1, 
-                                                             P2 = P2
-    ); 
+    cv::Ptr<cv::StereoSGBM> pStereo = cv::StereoSGBM::create(0);
+    pStereo->setMinDisparity(_minDisparity);
+    pStereo->setNumDisparities(_numDisparities);
+    pStereo->setBlockSize(_blockSize);
+    pStereo->setP1(_P1);
+    pStereo->setP2(_P2);
+
     /* compute disparity map
     */
     cv::Mat disparityMap;
@@ -297,12 +418,20 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
     pStereo->compute(leftImg, rightImg, disparityMap);
     Logger.addLog(Logger.levels[INFO], "Computed disparity map", disparityMap.type());
 
+    /* we will use the true disparity map for point cloud computation, since
+     * displaying this would not yield anything good
+     * NOTE: We can see that there is a gap of the left side of the image, this is 
+     * because the right camera did not have matching information. 
+     * The disparity value here would be -1.0
+    */
     cv::Mat trueDisparityMap;
     disparityMap.convertTo(trueDisparityMap, CV_32F, 1.0f/16.0f);
     Logger.addLog(Logger.levels[INFO], "Computed true disparity map", trueDisparityMap.type());
 
-#if 0
-    testShowDisparityImage(leftImg, rightImg, disparityMap);
+#if 1
+    cv::Mat disparityMap8Bit;
+    trueDisparityMap.convertTo(disparityMap8Bit, CV_8U);
+    testShowDisparityImage(leftImg, rightImg, disparityMap8Bit);
 #endif
     return trueDisparityMap;
 }

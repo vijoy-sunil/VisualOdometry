@@ -22,6 +22,17 @@ void VOClass::constructExtrinsicMatrix(std::string line){
     */
     std::vector<std::string> sub = tokenize(line);
     int k = 0;
+    /* Each line contains 12 values, and the number 12 comes from flattening
+     * a 3x4 transformation matrix of the left stereo camera with respect to 
+     * the global coordinate frame. 
+     * 
+     * A 3x4 transfomration matrix contains a 3x3 rotation matrix horizontally 
+     * stacked with a 3x1 translation vector in the form R|t
+     * 
+     * [Xworld, Yworld, Zworld] = [R|t] * [Xcamera, Ycamera, Zcamera]
+     * The camera's coordinate system is where the Z axis points forward, the 
+     * Y axis points downwards, and the X axis is horizontal
+    */
     for(int r = 0; r < 3; r++){
         for(int c = 0; c < 4; c++){
             extrinsicMat.at<float>(r, c) = std::stof(sub[k++]);

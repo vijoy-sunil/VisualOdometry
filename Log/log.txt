@@ -1,29 +1,30 @@
 [ INF ] Constructed projectionCL 
-[ DEB ] 707.091 0 601.887 0 
-[ DEB ] 0 707.091 183.11 0 
+[ DEB ] 718.856 0 607.193 0 
+[ DEB ] 0 718.856 185.216 0 
 [ DEB ] 0 0 1 0 
 [ INF ] Constructed projectionCR 
-[ DEB ] 707.091 0 601.887 -379.815 
-[ DEB ] 0 707.091 183.11 0 
+[ DEB ] 718.856 0 607.193 -386.145 
+[ DEB ] 0 718.856 185.216 0 
 [ DEB ] 0 0 1 0 
 [ INF ] Constructed qMat 
-[ DEB ] 1 0 0 -601.887 
-[ DEB ] 0 1 0 -183.11 
-[ DEB ] 0 0 0 707.091 
-[ DEB ] 0 0 -1.86168 0 
-[ INF ] Constructed ground truth trajectory 271 
+[ DEB ] 1 0 0 -607.193 
+[ DEB ] 0 1 0 -185.216 
+[ DEB ] 0 0 0 718.856 
+[ DEB ] 0 0 -1.86162 0 
+[ INF ] Constructed ground truth trajectory 4541 
 [ INF ] Computed disparity map 3 
 [ INF ] Computed true disparity map 5 
+[ TST ] Show disparity and stereo pair images 
 [ INF ] Computed disparity map 3 
 [ INF ] Computed true disparity map 5 
-[ INF ] Computed feature vector 3981 
-[ TST ] Show features detected 
+[ TST ] Show disparity and stereo pair images 
+[ INF ] Computed feature vector 4607 
 [ INF ] Circular matching complete 
-[ INF ] Feature vector sizes 3981 3981 3981 3981 3981 
-[ INF ] Status vector sizes 3981 3981 3981 3981 
-[ INF ] Status vector valid points 3900 3744 3727 3680 
-[ INF ] Status vector valid points Bounds filter 3896 3715 3701 3679 
-[ INF ] Extracted common features 3629 
-[ INF ] Extracted stable features 3226 3226 
-[ INF ] Computed 3D points 2171 
-[ INF ] Computed 3D points 1957 
+[ INF ] Feature vector sizes 4607 4607 4607 4607 4607 
+[ INF ] Status vector sizes 4607 4607 4607 4607 
+[ INF ] Status vector valid points 4467 4243 4187 4231 
+[ INF ] Status vector valid points Bounds filter 4443 4200 4151 4227 
+[ INF ] Extracted common features 4136 
+[ INF ] Extracted stable features 3576 3576 
+[ INF ] Computed 3D points 3028 
+[ INF ] Computed 3D points 2313 

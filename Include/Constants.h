@@ -5,7 +5,7 @@
 
 /* choose the set of images to use in the KITTI dataset
 */
-const std::string sequenceID = "04";
+const std::string sequenceID = "00";
 const int numFrames = 2;
 /* file names
 */
