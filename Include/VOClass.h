@@ -11,16 +11,13 @@ class VOClass{
         */
         int frameW;
         int frameH;
-        /* 3x4 projection matrix of camera1 (left) and camera2
-         * (right); we call the cameras CL and CR
-         * This consists of both intrinsic and extrinsic params, 
-         * and is used to transform 3D world coordinates to 2d image 
-         * coordinates, and we get this after the calibration process.
+        /* 3x4 projection matrix of camera1 (left) and camera2 (right); we call 
+         * the cameras CL and CR. 
         */
         cv::Mat projectionCL = cv::Mat::zeros(3, 4, CV_32F);
         cv::Mat projectionCR = cv::Mat::zeros(3, 4, CV_32F);
-        /* read from calib file and store into matrix; this fn
-         * is called by getProjectionMatrices()
+        /* read from calib file and store into matrix; this fn is called by 
+         * getProjectionMatrices()
         */
         void constructProjectionMatrix(std::string line, cv::Mat& projectionMat);
         /* extrinsic matrix used to find camera pose as ground truth
@@ -59,24 +56,21 @@ class VOClass{
         */
         int* computeHistogram(cv::Mat src, int maxVal);
     public:
-        /* we need to hold 4 images at a time; 2x at time t and 
-         * 2x at time (t+1)
+        /* we need to hold 4 images at a time; 2x at time t and 2x at time (t+1)
         */
         cv::Mat imgLT1, imgRT1;
         cv::Mat imgLT2, imgRT2;
 
         VOClass(void);
         ~VOClass(void);
-        /* read images from directory, manipulate file name based
-         * on frame number
+        /* read images from directory, manipulate file name based on frame number
         */
         bool readStereoImagesT1T2(int frameNumber);
-        /* construct projection matrices for both cameras from the
-         * calibration file
+        /* construct projection matrices for both cameras from the calibration file
         */
         bool getProjectionMatrices(const std::string calibrationFile);
-        /* get ground truth output poses, so that we can compare our
-         * estimate with it at the end
+        /* get ground truth output poses, so that we can compare our estimate with 
+         * it at the end
         */
         bool getGroundTruthPath(const std::string groundTruthFile);
         /* compute disparity
@@ -91,6 +85,11 @@ class VOClass{
         /* feature matching
         */
         std::vector<cv::Point2f> matchFeatureKLT(std::vector<cv::Point2f> &featurePointsLT1);
+        /* estimate motion
+        */
+        cv::Mat estimateMotion(std::vector<cv::Point2f> featurePointsT1, 
+                               std::vector<cv::Point2f> featurePointsT2, 
+                               cv::Mat depthMap);
 
         /* test fns
         */

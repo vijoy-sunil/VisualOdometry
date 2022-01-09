@@ -16,8 +16,8 @@ VOClass::VOClass(void){
 VOClass::~VOClass(void){
 }
 
-/* this function will be called in a loop to read through all sets of images within 
- * a sequence directory frameNumber will go from 0 to sizeof(imageDir)-1
+/* this function will be called in a loop to read through all sets of images 
+ * within  a sequence directory frameNumber will go from 0 to sizeof(imageDir)-1
 */
 bool VOClass::readStereoImagesT1T2(int frameNumber){
     /* construct image file name from frameNumber, and img
@@ -69,132 +69,17 @@ bool VOClass::readStereoImagesT1T2(int frameNumber){
  * left and P1 denotes the right camera. P2/P3 are left color camera and right color 
  * camera, which we won't be using here
  * 
- * It is basically the intrinsic matrix plus baseline component with camera 0 (left) 
- * as reference
+ * These matrices contain intrinsic information about the camera's focal length and 
+ * optical center. Further, they also contain tranformation information which relates 
+ * each camera's coordinate frame to the global coordinate frame (in this case that 
+ * of the left grayscale camera). - rectified projection matrix
+ * 
+ * The global frame is the established coordinate frame of the camera's first position
  *  _                        _
  *  | fu    0   cx  -fu * bx |
  *  | 0     fv  cy  0        |
  *  | 0     0   0   1        |
  *  -                        -
- * 
- * NOTE: Normally, a camera's projection matrix take a 3D point in a global 
- * coordinate frame and projects it onto pixel coordinates on THAT camera's 
- * image frame. Rectified projection matrices are the opposite, and are designed 
- * to map points in each camera's coordinate frame onto one single image plane: 
- * that of the left camera. This means they are going in the opposite direction, 
- * as these matrices are taking 3D points from the coordinate frame of the camera 
- * they are associated with, and projecting them onto the image plane of the left 
- * camera. 
- * 
- * NOTE: If the projection matrices provided were standard per-camera projection 
- * matrices, we would expect the extrinsic matrix to take a point from the global 
- * coordinate frame and tranform it into the frame of the camera. For example, if 
- * we were to take the origin of the global coordinate frame (the origin of the 
- * left grayscale camera) and translate it into the coordinate frame of the right 
- * grayscale camera, we would expect to see an X coordinate of -0.54, since the 
- * left camera's origin is 0.54 meters to the left of the right grayscale camera's 
- * origin.
- * 
- * To test this, we can decompose the projection matrix given for the right camera 
- * into k, R, and t.
- * Intrinsic Matrix:
- * [[718.856    0.     607.1928]
- * [  0.     718.856  185.2157]
- * [  0.       0.       1.    ]]
- * Rotation Matrix:
- * [[1. 0. 0.]
- * [0. 1. 0.]
- * [0. 0. 1.]]
- * Translation Vector:
- * [[ 0.5372]
- * [ 0.    ]
- * [0.     ]
- * [ 1.    ]]
- * 
- * In this case, let's see what we get if we transform the origin of the global 
- * coordinate frame (the origin of the left grayscale camera) using the tranformation/
- * extrinsic matrix we got from this projection matrix. According to the schematic, 
- * we should expect it to be 0.54m to the left (X = -0.54)
- * But, we get
- * [[ 0.5372]
- * [ 0.    ]
- * [0.     ]
- * 
- * And here we can see the issue: the X value is POSITIVE 0.54, which points 0.54m 
- * to the right of the camera frame, which tells us that this projection matrix is 
- * NOT actually referring to the right camera, it is referring to the left camera, 
- * and treating the origin of the right camera as the global coordinate frame.
- * 
- * This is because it is a rectified projection matrix for a stereo rig, which is 
- * intended to project points from the coordinate frames of multiple cameras onto 
- * the SAME image plane, rather than the coordinates from one coordinate frame onto
- * the image planes of multiple cameras.
- * 
- * Each rectified projection matrix will take (X, Y, Z, 1) homogeneous coordinates of 
- * 3D points in the associated sensor's coordinate frame and translates them to pixel 
- * locations (u, v, 1) on the image plane of the left grayscale camera.
- * 
- * Now we know what these calibration matrices are actually telling us, and that they 
- * are in all in reference to the left grayscale camera's image plane
- * 
- * EXERCISE: Let's take some point measured with respect to the coordinate frame of the 
- * left camera when it is in it's 14 pose of the sequence, and transform it onto the 
- * image plane of the camera
- * Original point:
- * [[1]
- * [2]
- * [3]
- * [1]]
- * 
- * We can do this by using accessing the 14th pose from the ground truth (extrinsic 
- * matrix) and multiplying them
- * 
- * [R|t] * original point = [u, v, w] in camera frame
- * 'w' is the depth from camera
- * 
- * Transformed point:
- * [[ 0.2706]
- * [ 1.5461]
- * [15.0755]]
- * Depth from camera:
- * [15.0755]
- * 
- * To project this 3D point onto the image plane, we could first apply the intrinsic 
- * matrix, THEN divide by the depth, which would take us from meters, to pixel*meters, 
- * then to pixels
- * OR
- * or we could just divide by the depth first, taking us into unitless measurements 
- * by dividing meters by meters,then multiply by the intrinsic matrix, which would then 
- * take us from unitless to pixels
- * [[620.09802465 258.93763336   1.        ]]
- * 
- * Another thing that is done regularly is "normalizing" the pixel coordinates by 
- * multiplying them by the inverse of the intrinsic matrix k, which brings us back into 
- * unitless values, as we take pixel measurements and multiply them by the inverse of 
- * pixel measurements.
- * (which represent the 3D points projected onto a 2D plane which is 1 unit (unitless) 
- * away from the origin of the camera down the Z axis)
- * Normalized Coordinates: [[0.01795245 0.10255452 1.        ]]
- * 
- * it is interesting to see that if we take the normalized coordinates and multiply 
- * them by their respective depths, we can reconstruct the original 3D position from
- * the 2D projection of a point (as long as we know the depth)
- * [[ 0.2706,  1.5461, 15.0755]]
- * 
- * And we are back to 3D coordinates in our camera frame. To get back to the 3D position 
- * in our original coordinate frame, we can add a row of (0, 0, 0, 1) to the transformation 
- * matrix (R|t) we used to make it homogeneous, then invert it, and finally dot it with the 
- * restored 3D coordinates in the camera frame (note that we also need to add a 1 to the end 
- * of these coordinates to make them homogeneous as well) 
- * ([1., 2., 3., 1.])
- * 
- * And there we have it, we went from a 3D point on a coordinate frame, projected it to 
- * pixel coordinates of a camera in a separate coordinate frame, reconstructed the metrics 
- * using a known depth, and then reverse transformed the 3D point back into the original 
- * frame by inverting a homogeneous version of the original transformation matrix used and 
- * dotting it with the homogeneous 3D coordinates of the point in the camera's coordinate 
- * frame.
- * 
 */
 bool VOClass::getProjectionMatrices(const std::string calibrationFile){
     /* ifstream to read from file
@@ -234,14 +119,18 @@ bool VOClass::getProjectionMatrices(const std::string calibrationFile){
     }
 }
 
-/* poses/XX.txt contains the 4x4 homogeneous matrix flattened out
- * to 12 elements; r11 r12 r13 tx r21 r22 r23 ty r31 r32 r33 tz
+/* poses/XX.txt contains the 4x4 homogeneous matrix flattened out to 12 elements; 
+ * r11 r12 r13 tx r21 r22 r23 ty r31 r32 r33 tz
  *  _                _
  *  | r11 r12 r13 tx |
  *  | r21 r22 r21 ty |
  *  | r31 r32 r33 tz |
  *  | 0   0   0   1  |
  *  -                - 
+ * 
+ * The number 12 comes from flattening a 3x4 transformation matrix of the left 
+ * stereo camera with respect to the global coordinate frame (first frame of
+ * left camera)
 */
 bool VOClass::getGroundTruthPath(const std::string groundTruthFile){
     /* ifstream to read from file
@@ -319,9 +208,8 @@ bool VOClass::getGroundTruthPath(const std::string groundTruthFile){
     }
 }
 
-/* compute disparity map using sgbm method (semi global
- * matching); Not going into too much detail, this algorithm
- * matches blocks instead of pixels
+/* compute disparity map using sgbm method (semi global matching); Not going 
+ * into too much detail, this algorithm matches blocks instead of pixels
 */
 cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
     /* tunable parameters
@@ -400,6 +288,9 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
 }
 
 /* convert disparity map to depth map using f, Tx, d
+ * NOTE: the depthMap points are NOT to be confused with actual 3D points
+ * in camera frame !!! To get 3D points, we will need to invert the intrinsic
+ * matrix to get x, y in camera frame
 */
 cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     /* compute fx from intrinsic matrix (for left camera)
@@ -435,11 +326,7 @@ cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     }
     Logger.addLog(Logger.levels[INFO], "Computed depth map", focalLengthX, baseline, 
                                                              minDepth, maxDepth);
-#if 0
-    testShowDepthImage(disparityMap, depthMap);
-#endif
-
-#if 0
+#if 1
     cv::Mat colors;
     /* use imgLT1 if we are passing in disparityMapT1, and imgLT2 if
      * passing disparityMapT2
@@ -453,6 +340,10 @@ cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     int numVertices = (depthMap.rows * depthMap.cols) - hist[(int)maxDepth];
     writeToPLY(depthMap, colors, 3000, numVertices);
     free(hist);
+#endif
+
+#if 0
+    testShowDepthImage(disparityMap, depthMap);
 #endif
     return depthMap;
 }
@@ -652,4 +543,200 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
     */
     featurePointsLT1 = fLT1ReOffset;
     return flT2Offset;
+}
+
+/* estimate motion using matched feature points between LT1 and LT2
+*/
+cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1, 
+                                std::vector<cv::Point2f> featurePointsT2, 
+                                cv::Mat depthMap){
+    /*
+    * First, we convert feature points (in image frame) to 3D points in camera 
+    * frame for LEFT IMAGE (global frame)
+    *
+    * [u, v, 1] = intrinsicMat * [x, y, z, 1]
+    *    z.u    = fx  0  cx 0      x
+    *    z.v      0   fy cy 0  (x) y  
+    *     z       0   0  0  0      z
+    *                              1
+    * 
+    * We have already computed depth from depthMap using disparityMap
+    * (u)z = fx(x) + (cx)z
+    *  x = (u(z) - cx(z))/fx
+    * Instead of taking the inverse of k, we compute x, y arithmetically
+    */
+    /* feature points whose depth are valid
+    */
+    std::vector<cv::Point2f> imagePointsT1, imagePointsT2;
+    /* camera frame 3D points from imgLT1
+    */
+    std::vector<cv::Point3f> objectPoints;
+    /* the matched array of features have to be the same size
+    */
+    assert(featurePointsT1.size() == featurePointsT2.size());
+    int numFeatures =featurePointsT1.size();
+    /* depth threshold
+    */
+    int depthThresh = 3000;
+    /* extract cx, cy, fx, fy from prjectionMat of left camera
+    */
+    float cx = projectionCL.at<float>(0, 2);
+    float cy = projectionCL.at<float>(1, 2);
+    float fx = projectionCL.at<float>(0, 0);
+    float fy = projectionCL.at<float>(1, 1);
+    Logger.addLog(Logger.levels[INFO], "Extracted params from projectionCL", cx, cy, fx, fy);
+
+    for(int i = 0; i < numFeatures; i++){
+        /* (u, v) in image frame
+        */
+        float u = featurePointsT1[i].x;
+        float v = featurePointsT1[i].y;
+        /* compute depth of this point
+         * NOTE: x goes in horizontal direction -> equivalent to cols
+         *       y goes in vertical direction   -> equivalent to rows
+        */
+        float z = depthMap.at<float>(v, u);
+        /* If the depth at the position of our matched feature is above threshold, 
+         * then we ignore this feature because we don't actually know the depth and 
+         * it will throw our calculations off
+        */
+        if(z > depthThresh)
+            continue;
+        /* filtered feature points
+        */
+        imagePointsT1.push_back({u, v});
+        imagePointsT2.push_back({featurePointsT2[i].x, featurePointsT2[i].y});
+        /* Use arithmetic to extract x and y (faster than using inverse of k)
+        */
+        float x = z * (u - cx)/fx;
+        float y = z * (v - cy)/fy;
+        /* store (x, y, z) these are in camera frame
+        */
+        objectPoints.push_back({x, y, z});
+    }
+    Logger.addLog(Logger.levels[INFO], "Feature points size before depth filter", 
+    featurePointsT1.size());
+    Logger.addLog(Logger.levels[INFO], "Feature points size after depth filter", 
+    imagePointsT1.size());
+    Logger.addLog(Logger.levels[INFO], "Object points size", objectPoints.size());
+#if 0
+    Logger.addLog(Logger.levels[DEBUG], "3D object points");
+    for(int i = 0; i < objectPoints.size(); i++)
+        Logger.addLog(Logger.levels[DEBUG], objectPoints[i].x, 
+                                            objectPoints[i].y, 
+                                            objectPoints[i].z);
+#endif
+
+    /* output R matrix and T vector combined to form 3x4 matrix
+    */
+    cv::Mat Rt = cv::Mat::zeros(3, 4, CV_32F);
+    cv::Mat R, t;
+    /* construct intrinsic matrix
+    */
+    cv::Mat K = cv::Mat::zeros(3, 3, CV_32F);
+    for(int r = 0; r < 3; r++){
+        for(int c = 0; c < 3; c++)
+            K.at<float>(r, c) = projectionCL.at<float>(r, c);
+    }
+    /* Second, Pose estimation step;
+     * We need to compute a pose that relates points in the global coordinate 
+     * frame to the camera's pose. 
+     * 
+     * The global frame is the established coordinate frame of the camera's first 
+     * position. If we look at the first line in pose.txt, we see that the
+     * rotational component is identity, with a translation vector equal to zero 
+     * for all axes.
+     *  
+     * We used the camera's pose in the first image (the first image in left 
+     * camera is the origin in world frame) as the global coordinate frame, 
+     * reconstruct 3D positions of the features in the image using stereo depth 
+     * estimation, then find a pose (R|t matrix) which relates the camera in the 
+     * next frame to those 3D points. This is exactly what the matrix in pose
+     * file represents.
+     * 
+     *                /---/
+     *               / x / Cl1
+     *              /---/
+     *              
+     *  x x x x        R|t to transform 3D points in Cl1 frame to global frame (Cl0)
+     *  _______
+     * |  Cl0  |
+     *  -------
+     * When tracking the vehicle pose over time, what we actually want is to relate 
+     * the points in the camera's coordinate frame to the global frame
+    */
+#if 1
+    /* RANSAC method
+     * Using RANSAC is useful when you suspect that a few data points are extremely 
+     * noisy. For example, consider the problem of fitting a line to 2D points. This 
+     * problem can be solved using linear least squares where the distance of all points 
+     * from the fitted line is minimized. Now consider one bad data point that is wildly 
+     * off. This one data point can dominate the least squares solution and our estimate 
+     * of the line would be very wrong. In RANSAC, the parameters are estimated by randomly 
+     * selecting the minimum number of points required. In a line fitting problem, we 
+     * randomly select two points from all data and find the line passing through them. 
+     * Other data points that are close enough to the line are called inliers. Several 
+     * estimates of the line are obtained by randomly selecting two points, and the line 
+     * with the maximum number of inliers is chosen as the correct estimate.
+    */
+    /* Rodrigues parameters are also called axis-angle rotation. They are formed by 4 
+    * numbers [theta, x, y, z], which means that you have to rotate an angle "theta" around 
+    * the axis described by unit vector v=[x, y, z]. But, in cv::Rodrigues function reference, 
+    * it seems that OpenCV uses a "compact" representation of Rodrigues notation as vector 
+    * with 3 elements rod2=[a, b, c], where:
+    * 
+    * Angle to rotate theta is the module of input vector theta = sqrt(a^2 + b^2 + c^2)
+    * Rotation axis v is the normalized input vector: 
+    * v = rod2/theta = [a/theta, b/theta, c/theta]
+    */
+    cv::Mat rRodrigues;
+    /* Assuming no lens distortion
+    */
+    cv::Mat distCoeffs = cv::Mat::zeros(4, 1, CV_32F);
+    cv::solvePnPRansac(objectPoints, imagePointsT2, K , distCoeffs, rRodrigues, t);
+
+    Logger.addLog(Logger.levels[INFO], "Estimated rRodrigues vector", 
+                                        rRodrigues.rows, rRodrigues.cols);
+    for(int r = 0; r < 3; r++)
+        Logger.addLog(Logger.levels[DEBUG], rRodrigues.at<float>(r, 0));
+
+    Logger.addLog(Logger.levels[INFO], "Estimated translation vector", 
+                                        t.rows, t.cols);
+    for(int r = 0; r < 3; r++)
+        Logger.addLog(Logger.levels[DEBUG], t.at<float>(r, 0));
+
+    /* convert rodrigues rotation vector to Euler angles notation, which represent three 
+     * consecutive rotations around a combination of X, Y and Z axes.
+    */
+    cv::Rodrigues(rRodrigues, R);
+
+    Logger.addLog(Logger.levels[INFO], "Estimated rotation vector", 
+                                        R.rows, R.cols);
+    for(int r = 0; r < 3; r++)
+        Logger.addLog(Logger.levels[DEBUG], R.at<float>(r, 0), 
+                                            R.at<float>(r, 1), 
+                                            R.at<float>(r, 2));
+    /* Combine R and t to Rt
+    */
+    for(int r = 0; r < 3; r++){
+        for(int c = 0; c < 3; c++){
+            Rt.at<float>(r, c) = R.at<float>(r, c); 
+        }
+        /* add last column
+        */
+        Rt.at<float>(r, 3) = t.at<float>(r, 0);
+    }
+    Logger.addLog(Logger.levels[INFO], "Estimated pose matrix", 
+                                        Rt.rows, Rt.cols);
+    for(int r = 0; r < 3; r++)
+        Logger.addLog(Logger.levels[DEBUG], Rt.at<float>(r, 0), 
+                                            Rt.at<float>(r, 1), 
+                                            Rt.at<float>(r, 2),
+                                            Rt.at<float>(r, 3));   
+    
+    /* Integrate all pose matrices
+     * 
+    */
+#endif
+    return Rt;
 }
