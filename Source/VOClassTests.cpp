@@ -58,7 +58,7 @@ void VOClass::testShowDepthImage(cv::Mat disparityMap, cv::Mat depthMap){
 /* plot ground truth trajectory
 */
 void VOClass::testShowGroundTruthTrajectory(void){
-    int numPoints = groundX.size();
+    int numPoints = groundTruth.size();
     Logger.addLog(Logger.levels[TEST], "Show ground truth trajectory");
     /* create an empty image
     */
@@ -83,8 +83,8 @@ void VOClass::testShowGroundTruthTrajectory(void){
         /* the camera on the car is facing the z axis, so to get a
          * top down view, we plot x-z axis
         */
-        int p1 = groundX[i] + trajectoryC/2;
-        int p2 = groundZ[i] + trajectoryR/4;
+        int p1 = groundTruth[i].at<float>(0, 0) + trajectoryC/2;
+        int p2 = groundTruth[i].at<float>(2, 0) + trajectoryR/4;
         /* img, center, radius, color, thickness
          */
         /* different color for the starting point and ending point
@@ -218,3 +218,42 @@ void VOClass::testShowCirculatMatchingFull(std::vector<cv::Point2f> fLT1,
     cv::waitKey(0);
 }
 
+/* plot ground truth and estimated trajectory
+*/
+void VOClass::testShowTrajectoryPair(std::vector<cv::Mat> trajectory){
+    int numPoints = trajectory.size();
+    Logger.addLog(Logger.levels[TEST], "Show ground truth and estimated trajectory"); 
+    /* create an empty image
+    */
+    const int windowR = 800;
+    const int windowC = 800;
+    cv::Mat window = cv::Mat::zeros(windowR, windowC, CV_8UC3);   
+    for(int i = 0; i < numPoints; i++){
+        /* shift origins
+        */
+        /* the camera on the car is facing the z axis, so to get a
+         * top down view, we plot x-z axis
+        */
+        int p1G = groundTruth[i].at<float>(0, 0) + windowC/2;
+        int p2G = groundTruth[i].at<float>(2, 0) + windowR/4; 
+
+        int p1E = trajectory[i].at<float>(0, 0) + windowC/2;
+        int p2E = trajectory[i].at<float>(2, 0) + windowR/2;    
+        /* different color for the starting point and ending point
+         */
+        if(i == 0){
+            cv::circle(window, cv::Point(p1G, p2G), 5, CV_RGB(0, 255, 0), 2);
+            cv::circle(window, cv::Point(p1E, p2E), 5, CV_RGB(0, 255, 0), 2);
+        }
+        else if(i == numPoints - 1){
+            cv::circle(window, cv::Point(p1G, p2G), 5, CV_RGB(255, 0, 0), 2);
+            cv::circle(window, cv::Point(p1E, p2E), 5, CV_RGB(255, 0, 0), 2);
+        }
+        else{
+            cv::circle(window, cv::Point(p1G, p2G), 1, CV_RGB(0, 0, 255), 2); 
+            cv::circle(window, cv::Point(p1E, p2E), 1, CV_RGB(255, 255, 0), 2);
+        }
+    }
+    imshow("Ground Truth & Estimated Trajectory", window);
+    cv::waitKey(0); 
+}

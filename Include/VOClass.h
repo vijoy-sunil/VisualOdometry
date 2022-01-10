@@ -25,7 +25,7 @@ class VOClass{
         cv::Mat extrinsicMat = cv::Mat::zeros(4, 4, CV_32F);
         /* vector to hold ground truth poses
         */
-        std::vector<float> groundX, groundY, groundZ;
+        std::vector<cv::Mat> groundTruth;
         /* read from poses.txt and store it into matrix
         */
         void constructExtrinsicMatrix(std::string line);
@@ -72,7 +72,7 @@ class VOClass{
         /* get ground truth output poses, so that we can compare our estimate with 
          * it at the end
         */
-        bool getGroundTruthPath(const std::string groundTruthFile);
+        bool getGroundTruthPath(const std::string groundTruthFile, int& numFrames);
         /* compute disparity
         */
         cv::Mat computeDisparity(cv::Mat leftImg, cv::Mat rightImg);
@@ -85,11 +85,18 @@ class VOClass{
         /* feature matching
         */
         std::vector<cv::Point2f> matchFeatureKLT(std::vector<cv::Point2f> &featurePointsLT1);
+        /* integrated pose matrix [R|t] (homogeneous matrix 4x4)
+         * the first pose is identity
+        */
+        cv::Mat poseRt = cv::Mat::eye(4, 4, CV_32F);
         /* estimate motion
         */
         cv::Mat estimateMotion(std::vector<cv::Point2f> featurePointsT1, 
                                std::vector<cv::Point2f> featurePointsT2, 
                                cv::Mat depthMap);
+        /* compute error
+        */
+        float computeErrorInPoseEstimation(std::vector<cv::Mat> trajectory);
 
         /* test fns
         */
@@ -107,6 +114,7 @@ class VOClass{
                                           std::vector<cv::Point2f> fRT2, 
                                           std::vector<cv::Point2f> fLT2,
                                           std::vector<cv::Point2f> fLT1Re);
+        void testShowTrajectoryPair(std::vector<cv::Mat> trajectory);
 };
 
 #endif /* VOCLASS_H

@@ -7,11 +7,13 @@
 [ DEB ] 0 718.856 185.216 0 
 [ DEB ] 0 0 1 0 
 [ INF ] Constructed ground truth trajectory 4541 
+[ INF ] Read image ../../Data/sequences/00/image_0/000000.png 
+[ INF ] Read image ../../Data/sequences/00/image_1/000000.png 
+[ INF ] Read image ../../Data/sequences/00/image_0/000001.png 
+[ INF ] Read image ../../Data/sequences/00/image_1/000001.png 
 [ INF ] Computed disparity map 3 
 [ INF ] Computed true disparity map 5 
 [ INF ] Computed depth map 718.856 0.537166 4.06468 3861.45 
-[ DEB ] Computed histogram 3861 59921 
-[ INF ] .ply file write complete 
 [ INF ] Computed feature vector 4607 
 [ INF ] Circular matching complete 
 [ INF ] Feature vector sizes 4607 4607 4607 4607 4607 
@@ -36,7 +38,21 @@
 [ DEB ] 9.62219e-14 1.875 -0.186151 
 [ DEB ] -2.33318e-38 -0.904329 -3.55155e-34 
 [ DEB ] -8.39263e-19 -0.921658 -9.21015e-15 
-[ INF ] Estimated pose matrix 3 4 
+[ INF ] Estimated pose matrix 4 4 
 [ DEB ] 9.62219e-14 1.875 -0.186151 2.40955e-32 
 [ DEB ] -2.33318e-38 -0.904329 -3.55155e-34 1.17975e+35 
 [ DEB ] -8.39263e-19 -0.921658 -9.21015e-15 -0.662857 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] 0 0 0 0 
+[ DEB ] 0 0 0 0 
+[ DEB ] 0 0 0 0 
+[ DEB ] 0 0 0 0 
+[ INF ] Computed tPose 
+[ INF ] 0 0 0 
+[ INF ] Trajectory vector size 2 
+[ INF ] Ground truth vector size 4541 
+[ DEB ] Calculated:  0 0 0  Truth:  5.55112e-17 3.33067e-16 -4.44089e-16 
+[ DEB ] Calculated:  0 0 0  Truth:  -0.0469029 -0.0283993 0.858694 
+[ INF ] Measured error 0 
+[ TST ] Show ground truth and estimated trajectory 

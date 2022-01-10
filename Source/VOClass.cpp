@@ -28,37 +28,38 @@ bool VOClass::readStereoImagesT1T2(int frameNumber){
     */
     std::string imgName = formatStringWidth(frameNumber, nameWidth) + ".png";
     imgLT1 = cv::imread(leftImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
+    Logger.addLog(Logger.levels[INFO], "Read image", leftImagesPath + imgName);
     if(imgLT1.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgLT1", "leftImagesPath + imgName");
         assert(false);
     }
 
     imgRT1 = cv::imread(rightImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
+    Logger.addLog(Logger.levels[INFO], "Read image", rightImagesPath + imgName);
     if(imgRT1.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgRT1", "rightImagesPath + imgName");
         assert(false);        
     }
 
-#if 0
-    testShowStereoImage(imgLT1, imgRT1, frameNumber);
-#endif
-
     /* read image pair at t+1
     */
     imgName = formatStringWidth(frameNumber+1, nameWidth) + ".png";
     imgLT2 = cv::imread(leftImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
+    Logger.addLog(Logger.levels[INFO], "Read image", leftImagesPath + imgName);
     if(imgLT2.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgLT2", "leftImagesPath + imgName");
         assert(false);
     }
 
     imgRT2 = cv::imread(rightImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
+    Logger.addLog(Logger.levels[INFO], "Read image", rightImagesPath + imgName);
     if(imgRT2.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgRT2", "rightImagesPath + imgName");
         assert(false);        
     }
 
-#if 0
+#if SHOW_STEREO_IMAGE_PAIR
+    testShowStereoImage(imgLT1, imgRT1, frameNumber);
     testShowStereoImage(imgLT2, imgRT2, frameNumber+1);
 #endif
     return true;
@@ -132,7 +133,7 @@ bool VOClass::getProjectionMatrices(const std::string calibrationFile){
  * stereo camera with respect to the global coordinate frame (first frame of
  * left camera)
 */
-bool VOClass::getGroundTruthPath(const std::string groundTruthFile){
+bool VOClass::getGroundTruthPath(const std::string groundTruthFile, int& numFrames){
     /* ifstream to read from file
     */
     std::ifstream file(groundTruthFile);
@@ -158,9 +159,7 @@ bool VOClass::getGroundTruthPath(const std::string groundTruthFile){
              * This tells where the camera is located in the world coordinate.
              * The resulting (x, y, z) will be in meteres
             */
-            groundX.push_back(T.at<float>(0, 0));
-            groundY.push_back(T.at<float>(1, 0));
-            groundZ.push_back(T.at<float>(2, 0));
+            groundTruth.push_back(T);
 #if 0
             /* display one instance of the extrinsic matrix
             */
@@ -190,16 +189,17 @@ bool VOClass::getGroundTruthPath(const std::string groundTruthFile){
             }
             /* display ground x, y, z
             */
-            Logger.addLog(Logger.levels[DEBUG], "Computed groundX, groundY, groundZ");
+            Logger.addLog(Logger.levels[DEBUG], "Computed groundTruth");
             Logger.addLog(Logger.levels[DEBUG], T.at<float>(0, 0), 
                                                 T.at<float>(1, 0), 
                                                 T.at<float>(2, 0));
 #endif
         }
-        Logger.addLog(Logger.levels[INFO], "Constructed ground truth trajectory", groundX.size());
-#if 0
+#if SHOW_GROUND_TRUTH_TRAJECTORY
         testShowGroundTruthTrajectory();
 #endif
+        numFrames = groundTruth.size();
+        Logger.addLog(Logger.levels[INFO], "Constructed ground truth trajectory", numFrames);
         return true;
     }
     else{
@@ -279,7 +279,7 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
     disparityMap.convertTo(trueDisparityMap, CV_32F, 1.0f/16.0f);
     Logger.addLog(Logger.levels[INFO], "Computed true disparity map", trueDisparityMap.type());
 
-#if 0
+#if SHOW_DISPARITY_MAP
     cv::Mat disparityMap8Bit;
     trueDisparityMap.convertTo(disparityMap8Bit, CV_8U);
     testShowDisparityImage(leftImg, rightImg, disparityMap8Bit);
@@ -326,7 +326,7 @@ cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     }
     Logger.addLog(Logger.levels[INFO], "Computed depth map", focalLengthX, baseline, 
                                                              minDepth, maxDepth);
-#if 1
+#if WRITE_DEPTH_PLY_FILE
     cv::Mat colors;
     /* use imgLT1 if we are passing in disparityMapT1, and imgLT2 if
      * passing disparityMapT2
@@ -342,7 +342,7 @@ cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     free(hist);
 #endif
 
-#if 0
+#if SHOW_DEPTH_MAP
     testShowDepthImage(disparityMap, depthMap);
 #endif
     return depthMap;
@@ -378,7 +378,7 @@ std::vector<cv::Point2f> VOClass::getFeaturesFAST(cv::Mat img){
     cv::KeyPoint::convert(keypoints, featurePoints);
     Logger.addLog(Logger.levels[INFO], "Computed feature vector", featurePoints.size());
 
-#if 0
+#if SHOW_ALL_FAST_FEATURES
     testShowDetectedFeatures(img, featurePoints);
 #endif
     return featurePoints;
@@ -467,7 +467,7 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
     Logger.addLog(Logger.levels[INFO], "Status vector valid points", 
     validMatches(status0), validMatches(status1), validMatches(status2), validMatches(status3));   
 
-#if 0
+#if SHOW_CIRCULAR_MATCHING_PAIR
     testShowCirculatMatchingPair(imgLT1, featurePointsLT1, featurePointsRT1, status0);
     testShowCirculatMatchingPair(imgRT1, featurePointsRT1, featurePointsRT2, status1);
     testShowCirculatMatchingPair(imgRT2, featurePointsRT2, featurePointsLT2, status2);
@@ -484,7 +484,7 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
     Logger.addLog(Logger.levels[INFO], "Status vector valid points", "Bounds filter", 
     validMatches(status0), validMatches(status1), validMatches(status2), validMatches(status3));
  
-#if 0
+#if SHOW_CIRCULAR_MATCHING_PAIR_BOUNDS_FILTER
     testShowCirculatMatchingPair(imgLT1, featurePointsLT1, featurePointsRT1, status0);
     testShowCirculatMatchingPair(imgRT1, featurePointsRT1, featurePointsRT2, status1);
     testShowCirculatMatchingPair(imgRT2, featurePointsRT2, featurePointsLT2, status2);
@@ -504,7 +504,8 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
     }
     int numCommonFeatures = fLT1.size();
     Logger.addLog(Logger.levels[INFO], "Extracted common features", numCommonFeatures);
-#if 0
+
+#if SHOW_CIRCULAR_MATCHING_QUAD
     testShowCirculatMatchingFull(fLT1, fRT1, fRT2, fLT2, fLT1Re);
 #endif
 
@@ -534,7 +535,7 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
     }
     Logger.addLog(Logger.levels[INFO], "Extracted stable features", fLT1ReOffset.size(),
                                                                     flT2Offset.size());
-#if 0
+#if SHOW_ALL_FAST_FEATURES_STABLE
     testShowDetectedFeatures(imgLT1, fLT1ReOffset);
     testShowDetectedFeatures(imgLT2, flT2Offset);
 #endif
@@ -627,10 +628,14 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
                                             objectPoints[i].z);
 #endif
 
-    /* output R matrix and T vector combined to form 3x4 matrix
+    /* output R matrix and T vector combined to form 4x4 matrix with last row
+     * [0, 0, 0, 1]
     */
-    cv::Mat Rt = cv::Mat::zeros(3, 4, CV_32F);
+    cv::Mat Rt = cv::Mat::zeros(4, 4, CV_32F);
     cv::Mat R, t;
+    /* output trajectory (x, y, z) at current instant
+    */
+    cv::Mat tPose = cv::Mat::zeros(3, 1, CV_32F);
     /* construct intrinsic matrix
     */
     cv::Mat K = cv::Mat::zeros(3, 3, CV_32F);
@@ -665,27 +670,30 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
      * When tracking the vehicle pose over time, what we actually want is to relate 
      * the points in the camera's coordinate frame to the global frame
     */
-#if 1
+#if POSE_ESTIMATION_RANSAC
     /* RANSAC method
      * Using RANSAC is useful when you suspect that a few data points are extremely 
-     * noisy. For example, consider the problem of fitting a line to 2D points. This 
-     * problem can be solved using linear least squares where the distance of all points 
-     * from the fitted line is minimized. Now consider one bad data point that is wildly 
-     * off. This one data point can dominate the least squares solution and our estimate 
-     * of the line would be very wrong. In RANSAC, the parameters are estimated by randomly 
-     * selecting the minimum number of points required. In a line fitting problem, we 
-     * randomly select two points from all data and find the line passing through them. 
-     * Other data points that are close enough to the line are called inliers. Several 
-     * estimates of the line are obtained by randomly selecting two points, and the line 
-     * with the maximum number of inliers is chosen as the correct estimate.
+     * noisy. For example, consider the problem of fitting a line to 2D points. 
+     * This problem can be solved using linear least squares where the distance of 
+     * all points from the fitted line is minimized. Now consider one bad data point 
+     * that is wildly off. This one data point can dominate the least squares solution 
+     * and our estimate of the line would be very wrong. In RANSAC, the parameters are 
+     * estimated by randomly selecting the minimum number of points required. In a line
+     * fitting problem, we randomly select two points from all data and find the line 
+     * passing through them. Other data points that are close enough to the line are 
+     * called inliers. Several estimates of the line are obtained by randomly selecting 
+     * two points, and the line with the maximum number of inliers is chosen as the 
+     * correct estimate.
     */
     /* Rodrigues parameters are also called axis-angle rotation. They are formed by 4 
-    * numbers [theta, x, y, z], which means that you have to rotate an angle "theta" around 
-    * the axis described by unit vector v=[x, y, z]. But, in cv::Rodrigues function reference, 
-    * it seems that OpenCV uses a "compact" representation of Rodrigues notation as vector 
-    * with 3 elements rod2=[a, b, c], where:
+    * numbers [theta, x, y, z], which means that you have to rotate an angle "theta" 
+    * around the axis described by unit vector v=[x, y, z]. But, in cv::Rodrigues 
+    * function reference, it seems that OpenCV uses a "compact" representation of 
+    * Rodrigues notation as vector with 3 elements rod2=[a, b, c], where:
     * 
-    * Angle to rotate theta is the module of input vector theta = sqrt(a^2 + b^2 + c^2)
+    * Angle to rotate theta is the module of input vector 
+    * theta = sqrt(a^2 + b^2 + c^2)
+    * 
     * Rotation axis v is the normalized input vector: 
     * v = rod2/theta = [a/theta, b/theta, c/theta]
     */
@@ -693,6 +701,10 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     /* Assuming no lens distortion
     */
     cv::Mat distCoeffs = cv::Mat::zeros(4, 1, CV_32F);
+    /* We actually want to relate the points in the camera's coordinate frame to the 
+     * global frame, so we want the opposite (inverse) of the transformation matrix 
+     * provided to us by the SolvePnPRansac function.
+    */
     cv::solvePnPRansac(objectPoints, imagePointsT2, K , distCoeffs, rRodrigues, t);
 
     Logger.addLog(Logger.levels[INFO], "Estimated rRodrigues vector", 
@@ -705,8 +717,8 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     for(int r = 0; r < 3; r++)
         Logger.addLog(Logger.levels[DEBUG], t.at<float>(r, 0));
 
-    /* convert rodrigues rotation vector to Euler angles notation, which represent three 
-     * consecutive rotations around a combination of X, Y and Z axes.
+    /* convert rodrigues rotation vector to Euler angles notation, which represent 
+     * three consecutive rotations around a combination of X, Y and Z axes.
     */
     cv::Rodrigues(rRodrigues, R);
 
@@ -726,17 +738,65 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
         */
         Rt.at<float>(r, 3) = t.at<float>(r, 0);
     }
+    /* add last row [0, 0, 0, 1]
+    */
+    Rt.at<float>(3, 3) = 1;
+
     Logger.addLog(Logger.levels[INFO], "Estimated pose matrix", 
                                         Rt.rows, Rt.cols);
-    for(int r = 0; r < 3; r++)
+    for(int r = 0; r < 4; r++)
         Logger.addLog(Logger.levels[DEBUG], Rt.at<float>(r, 0), 
                                             Rt.at<float>(r, 1), 
                                             Rt.at<float>(r, 2),
                                             Rt.at<float>(r, 3));   
     
     /* Integrate all pose matrices
+     * We are tracking the vehicle motion from the very first camera pose, so we 
+     * need the cumulative product of the inverses of each estimated camera pose 
+     * given to us by SolvePnPRansac.
      * 
+     * This way, the transformation matrix at each index will be one that relates 
+     * 3D homogeneous coordinates in the camera's frame to the global coordinate
+     * frame, which is the coordinate frame of the camera's first position. The 
+     * translation vector component of this transformation matrix will describe 
+     * where the camera's curent origin is in this global referece frame.
     */
+    poseRt = poseRt * (Rt.inv(cv::DECOMP_CHOLESKY));
+    Logger.addLog(Logger.levels[INFO], "Integrated pose matrix", 
+                                        poseRt.rows, poseRt.cols);
+    for(int r = 0; r < 4; r++)
+        Logger.addLog(Logger.levels[DEBUG], poseRt.at<float>(r, 0), 
+                                            poseRt.at<float>(r, 1), 
+                                            poseRt.at<float>(r, 2),
+                                            poseRt.at<float>(r, 3));  
+    /* output pose (x, y, z) is the translational component of poseRt
+    */
+    tPose.at<float>(0, 0) = poseRt.at<float>(0, 3);
+    tPose.at<float>(1, 0) = poseRt.at<float>(1, 3);
+    tPose.at<float>(2, 0) = poseRt.at<float>(2, 3);
 #endif
-    return Rt;
+
+    Logger.addLog(Logger.levels[INFO], "Computed tPose");
+    Logger.addLog(Logger.levels[INFO], tPose.at<float>(0, 0), 
+                                       tPose.at<float>(1, 0),
+                                       tPose.at<float>(2, 0));
+    return tPose;
+}
+
+float VOClass::computeErrorInPoseEstimation(std::vector<cv::Mat> trajectory){
+    Logger.addLog(Logger.levels[INFO], "Trajectory vector size", trajectory.size());
+    Logger.addLog(Logger.levels[INFO], "Ground truth vector size", groundTruth.size());
+    
+    float error;
+#if 1
+    for(int i = 0; i < trajectory.size(); i++)
+        Logger.addLog(Logger.levels[DEBUG], "Calculated: ", trajectory[i].at<float>(0, 0),
+                                                            trajectory[i].at<float>(1, 0),
+                                                            trajectory[i].at<float>(2, 0), 
+                                            " Truth: ",     groundTruth[i].at<float>(0, 0), 
+                                                            groundTruth[i].at<float>(1, 0),
+                                                            groundTruth[i].at<float>(2, 0));
+#endif
+
+    return error;
 }

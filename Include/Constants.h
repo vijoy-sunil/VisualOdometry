@@ -3,10 +3,25 @@
 
 #include <string>
 
+/* Macros
+*/
+#define LIMITED_FRAMES_TEST_MODE                    1
+#define SHOW_STEREO_IMAGE_PAIR                      0
+#define SHOW_GROUND_TRUTH_TRAJECTORY                0
+#define SHOW_DISPARITY_MAP                          0
+#define WRITE_DEPTH_PLY_FILE                        0
+#define SHOW_DEPTH_MAP                              0
+#define SHOW_ALL_FAST_FEATURES                      0
+#define SHOW_CIRCULAR_MATCHING_PAIR                 0
+#define SHOW_CIRCULAR_MATCHING_PAIR_BOUNDS_FILTER   0
+#define SHOW_CIRCULAR_MATCHING_QUAD                 0
+#define SHOW_ALL_FAST_FEATURES_STABLE               0
+#define POSE_ESTIMATION_RANSAC                      1
+#define SHOW_GROUND_TRUTH_AND_ESTIMATED_TRAJECTORY  1
+
 /* choose the set of images to use in the KITTI dataset
 */
 const std::string sequenceID = "00";
-const int numFrames = 2;
 /* file names
 */
 const std::string calibrationFile= "calib.txt";

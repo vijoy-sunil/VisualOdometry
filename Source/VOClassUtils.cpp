@@ -170,7 +170,7 @@ int* VOClass::computeHistogram(cv::Mat src, int maxVal){
     }
     /* log histogram 
     */
-    Logger.addLog(Logger.levels[DEBUG], "Computed histogram", maxVal, hist[maxVal]);
+    Logger.addLog(Logger.levels[INFO], "Computed histogram", maxVal, hist[maxVal]);
 #if 0
     for(int i = 0; i <= maxVal; i++){
         if(hist[i] != 0)
