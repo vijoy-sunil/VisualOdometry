@@ -8,6 +8,7 @@
 VOClass::VOClass(void){
     /* width = number of cols (x)
      * height = number of rows (y)
+     * KITTI dataset specification
     */
     frameW = 1241; 
     frameH = 376;
@@ -17,11 +18,10 @@ VOClass::~VOClass(void){
 }
 
 /* this function will be called in a loop to read through all sets of images 
- * within  a sequence directory frameNumber will go from 0 to sizeof(imageDir)-1
+ * within  a sequence directory; frameNumber will go from 0 to sizeof(imageDir)-1
 */
 bool VOClass::readStereoImagesT1T2(int frameNumber){
-    /* construct image file name from frameNumber, and img
-     * format (.png in our case)
+    /* construct image file name from frameNumber, and img format (.png in our case)
     */
     const int nameWidth = 6;
     /* read image pair at t = 1
@@ -98,10 +98,10 @@ bool VOClass::getProjectionMatrices(const std::string calibrationFile){
         constructProjectionMatrix(line, projectionCL);
         Logger.addLog(Logger.levels[INFO], "Constructed projectionCL");
         for(int r = 0; r < 3; r++){
-            Logger.addLog(Logger.levels[DEBUG], projectionCL.at<float>(r, 0), 
-                                                projectionCL.at<float>(r, 1), 
-                                                projectionCL.at<float>(r, 2), 
-                                                projectionCL.at<float>(r, 3)
+            Logger.addLog(Logger.levels[DEBUG], projectionCL.at<double>(r, 0), 
+                                                projectionCL.at<double>(r, 1), 
+                                                projectionCL.at<double>(r, 2), 
+                                                projectionCL.at<double>(r, 3)
             );
         }
         /* read second line
@@ -110,10 +110,10 @@ bool VOClass::getProjectionMatrices(const std::string calibrationFile){
         constructProjectionMatrix(line, projectionCR);
         Logger.addLog(Logger.levels[INFO], "Constructed projectionCR");
         for(int r = 0; r < 3; r++){
-            Logger.addLog(Logger.levels[DEBUG], projectionCR.at<float>(r, 0), 
-                                                projectionCR.at<float>(r, 1), 
-                                                projectionCR.at<float>(r, 2), 
-                                                projectionCR.at<float>(r, 3)
+            Logger.addLog(Logger.levels[DEBUG], projectionCR.at<double>(r, 0), 
+                                                projectionCR.at<double>(r, 1), 
+                                                projectionCR.at<double>(r, 2), 
+                                                projectionCR.at<double>(r, 3)
             );
         }
         return true;  
@@ -149,8 +149,8 @@ bool VOClass::getGroundTruthPath(const std::string groundTruthFile, int& numFram
             constructExtrinsicMatrix(line);
             /* extract R, T from extrinsicMat
             */
-            cv::Mat R = cv::Mat::zeros(3, 3, CV_32F);
-            cv::Mat T = cv::Mat::zeros(3, 1, CV_32F);
+            cv::Mat R = cv::Mat::zeros(3, 3, CV_64F);
+            cv::Mat T = cv::Mat::zeros(3, 1, CV_64F);
             extractRT(R, T);
             /* construct ground x, y, z
              * If you are interested in getting where camera0 is located in the 
@@ -169,34 +169,34 @@ bool VOClass::getGroundTruthPath(const std::string groundTruthFile, int& numFram
             */
             Logger.addLog(Logger.levels[DEBUG], "Constructed extrinsicMat");
             for(int r = 0; r < 4; r++){
-                Logger.addLog(Logger.levels[DEBUG], extrinsicMat.at<float>(r, 0), 
-                                                    extrinsicMat.at<float>(r, 1), 
-                                                    extrinsicMat.at<float>(r, 2), 
-                                                    extrinsicMat.at<float>(r, 3)
+                Logger.addLog(Logger.levels[DEBUG], extrinsicMat.at<double>(r, 0), 
+                                                    extrinsicMat.at<double>(r, 1), 
+                                                    extrinsicMat.at<double>(r, 2), 
+                                                    extrinsicMat.at<double>(r, 3)
                 );
             }
             /* display one instance of R
             */
             Logger.addLog(Logger.levels[DEBUG], "Extracted R from extrinsicMat");
             for(int r = 0; r < 3; r++){
-                Logger.addLog(Logger.levels[DEBUG], R.at<float>(r, 0), 
-                                                    R.at<float>(r, 1), 
-                                                    R.at<float>(r, 2)
+                Logger.addLog(Logger.levels[DEBUG], R.at<double>(r, 0), 
+                                                    R.at<double>(r, 1), 
+                                                    R.at<double>(r, 2)
                 );
             }
             /* display one instance of T
             */
             Logger.addLog(Logger.levels[DEBUG], "Extracted T from extrinsicMat");
             for(int r = 0; r < 3; r++){
-                Logger.addLog(Logger.levels[DEBUG], T.at<float>(r, 0)
+                Logger.addLog(Logger.levels[DEBUG], T.at<double>(r, 0)
                 );
             }
             /* display ground x, y, z
             */
             Logger.addLog(Logger.levels[DEBUG], "Computed groundTruth");
-            Logger.addLog(Logger.levels[DEBUG], T.at<float>(0, 0), 
-                                                T.at<float>(1, 0), 
-                                                T.at<float>(2, 0));
+            Logger.addLog(Logger.levels[DEBUG], T.at<double>(0, 0), 
+                                                T.at<double>(1, 0), 
+                                                T.at<double>(2, 0));
 #endif
         }
 #if SHOW_GROUND_TRUTH_TRAJECTORY
@@ -299,10 +299,10 @@ cv::Mat VOClass::computeDisparity(cv::Mat leftImg, cv::Mat rightImg){
 cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     /* compute fx from intrinsic matrix (for left camera)
     */
-    float focalLengthX = projectionCL.at<float>(0, 0);
+    double focalLengthX = projectionCL.at<double>(0, 0);
     /* compute Tx (baseline)
     */
-    float baseline = (projectionCR.at<float>(0, 3))/ (-1 * focalLengthX);
+    double baseline = (projectionCR.at<double>(0, 3))/ (-1 * focalLengthX);
     /* avoid division by 0 since the disparityMap might have 0.0 or -1.0 values; 
      * we change these values to 0.1 which would result in large depth. we can
      * filter these out after 
@@ -316,16 +316,16 @@ cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     }
     /* create an empty depth map with same shape as disparityMap
     */
-    float maxDepth = 0, minDepth = INT_MAX;
-    cv::Mat depthMap = cv::Mat::ones(disparityMap.rows, disparityMap.cols, CV_32F);
+    double maxDepth = 0, minDepth = INT_MAX;
+    cv::Mat depthMap = cv::Mat::ones(disparityMap.rows, disparityMap.cols, CV_64F);
     for(int r = 0; r < frameH; r++){
         for(int c = 0; c < frameW; c++){
             float d = disparityMap.at<float>(r, c);
-            depthMap.at<float>(r, c) = focalLengthX * baseline/d;   
+            depthMap.at<double>(r, c) = focalLengthX * baseline/d;   
             /* compute max depth and min depth; for info purpose
             */   
-            maxDepth = std::max(depthMap.at<float>(r, c), maxDepth);
-            minDepth = std::min(depthMap.at<float>(r, c), minDepth);
+            maxDepth = std::max(depthMap.at<double>(r, c), maxDepth);
+            minDepth = std::min(depthMap.at<double>(r, c), minDepth);
         }
     }
     Logger.addLog(Logger.levels[INFO], "Computed depth map", focalLengthX, baseline, 
@@ -350,203 +350,6 @@ cv::Mat VOClass::computeDepthMap(cv::Mat disparityMap){
     testShowDepthImage(disparityMap, depthMap);
 #endif
     return depthMap;
-}
-
-/* FAST feature detection for detecting corners
-*/
-std::vector<cv::Point2f> VOClass::getFeaturesFAST(cv::Mat img){
-    /* The keypoint is characterized by the 2D position, scale (proportional 
-     * to the diameter of the neighborhood that needs to be taken into account), 
-     * orientation and some other parameters. 
-     * 
-     * The keypoint neighborhood is then analyzed by another algorithm that builds 
-     * a descriptor (usually represented as a feature vector)
-    */
-    std::vector<cv::KeyPoint> keypoints;
-    std::vector<cv::Point2f> featurePoints;
-    /* theshold: threshold on difference between intensity of the central pixel 
-     * and pixels of a circle around this pixel. 
-     * pixel p is a corner if there exists a set of n contiguous pixels in the 
-     * circle (of 16 pixels) which are all brighter than Ip+t, or all darker than 
-     * Ip−t.
-     * 
-     * nonmaxSuppression: algorithm faces issues when there are adjacent keypoints,
-     * so a score matrix is computed and the one with the lower value is discarded
-     * https://docs.opencv.org/4.x/df/d0c/tutorial_py_fast.html
-    */
-    int threshold = 20;
-    bool nonmaxSuppression = true;
-    cv::FAST(img, keypoints, threshold, nonmaxSuppression);  
-    /* This method converts vector of keypoints to vector of points
-    */
-    cv::KeyPoint::convert(keypoints, featurePoints);
-    Logger.addLog(Logger.levels[INFO], "Computed feature vector", featurePoints.size());
-
-#if SHOW_ALL_FAST_FEATURES
-    testShowDetectedFeatures(img, featurePoints);
-#endif
-    return featurePoints;
-}
-
-/* KLT feature matcher based on Sparse Optical Flow
- * NOTE: There are 2 types of optical flow. Dense and sparse. Dense finds 
- * flow for all the pixels while sparse finds flow for the selected points.
- * 
- * The circular algorithm takes a feature from one frame and finds the best 
- * match in an another frame, sequentially following the order Left(t) - Right(t) 
- * - Right(t+1)-Left(t+1)-Left(t)
- * 
- * Finally, if the feature is successfully matched through the entire sequence, 
- * i.e., the last matched feature is the same as the beginning one, the circle 
- * is closed and the feature is considered as `being stable` and therefore kept 
- * as a high-quality point for further analysis
-*/
-std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &featurePointsLT1){
-    /* create termination criteria for optical flow calculation
-     * The first argument of this function tells the algorithm that we want 
-     * to terminate either after some number of iterations or when the 
-     * convergence metric reaches some small value (respectively). The next 
-     * two arguments set the values at which one, the other, or both of these 
-     * criteria should terminate the algorithm.
-     * 
-     * The reason we have both options is so we can  stop when either limit is 
-     * reached.
-     * 
-     * Here, the criteria specifies the termination criteria of the iterative 
-     * search algorithm (after the specified maximum number of iterations maxCount 
-     * or when the search window moves by less than epsilon) in the pyramid.
-    */
-    const int maxCount = 50;
-    const float epsilon = 0.03;
-    cv::TermCriteria termCrit = cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 
-                                                 maxCount, epsilon);
-    
-    /* circular matching of features using optical flow
-     * (1) using optical flow, calculate and match imgLT1 features in imgRT1
-     * (2) using the imgRT1 matched feature from above, match and find features
-     *     in imgRT2 using optical flow
-     * (3) similarly, find and match features in imgLT2 using imgRT2 features
-     * (4) Finally, find, match and store features in imgLT1 using imgLT2 features
-     * Now, you will have two sets of feature vectors for imgLT1
-    */
-    std::vector<cv::Point2f> featurePointsRT1, featurePointsRT2, featurePointsLT2;
-    std::vector<cv::Point2f> featurePointsLT1Re;
-    /* output status vector (of unsigned chars); each element of the vector is set
-     * to 1 if the flow for the corresponding features has been found, otherwise, 
-     * it is set to 0. We uses these to remove unmatched features from the vector
-    */
-    std::vector<unsigned char> status0, status1, status2, status3;
-    /* err:  output vector of errors; each element of the vector is set to an error 
-     * for the corresponding feature. Optical flow basically works by matching a patch, 
-     * around each input point, from the input image to the second image. The parameter 
-     * err allows you to retrieve the matching error (e.g. you may think of that as the 
-     * correlation error) for each input point.
-     * 
-     * winSize: size of the search window at each pyramid level.
-     * 
-     * pyramidLevels: if set to 0, pyramids are not used (single level), if set to 1, 
-     * two levels are used, and so on.
-    */
-    std::vector<float> err;                    
-    cv::Size winSize = cv::Size(15,15); 
-    const int pyramidLevels = 3;
-
-    cv::calcOpticalFlowPyrLK(imgLT1, imgRT1, featurePointsLT1, featurePointsRT1, 
-                             status0, err, winSize, pyramidLevels, termCrit);
-    cv::calcOpticalFlowPyrLK(imgRT1, imgRT2, featurePointsRT1, featurePointsRT2, 
-                             status1, err, winSize, pyramidLevels, termCrit);
-    cv::calcOpticalFlowPyrLK(imgRT2, imgLT2, featurePointsRT2, featurePointsLT2, 
-                             status2, err, winSize, pyramidLevels, termCrit);
-    cv::calcOpticalFlowPyrLK(imgLT2, imgLT1, featurePointsLT2, featurePointsLT1Re, 
-                             status3, err, winSize, pyramidLevels, termCrit);
-
-    Logger.addLog(Logger.levels[INFO], "Circular matching complete");
-    Logger.addLog(Logger.levels[INFO], "Feature vector sizes", 
-    featurePointsLT1.size(), featurePointsRT1.size(), 
-    featurePointsRT2.size(), featurePointsLT2.size(), featurePointsLT1Re.size());
-
-    Logger.addLog(Logger.levels[INFO], "Status vector sizes", 
-    status0.size(), status1.size(), status2.size(), status3.size());
-
-    Logger.addLog(Logger.levels[INFO], "Status vector valid points", 
-    validMatches(status0), validMatches(status1), validMatches(status2), validMatches(status3));   
-
-#if SHOW_CIRCULAR_MATCHING_PAIR
-    testShowCirculatMatchingPair(imgLT1, featurePointsLT1, featurePointsRT1, status0);
-    testShowCirculatMatchingPair(imgRT1, featurePointsRT1, featurePointsRT2, status1);
-    testShowCirculatMatchingPair(imgRT2, featurePointsRT2, featurePointsLT2, status2);
-    testShowCirculatMatchingPair(imgLT2, featurePointsLT2, featurePointsLT1Re, status3);
-#endif
-    /* update status vector for invalid feature points; calculated point 
-     * (x,y) would be out of bounds
-    */
-    markInvalidFeaturesBounds(featurePointsRT1, status0);
-    markInvalidFeaturesBounds(featurePointsRT2, status1);
-    markInvalidFeaturesBounds(featurePointsLT2, status2);
-    markInvalidFeaturesBounds(featurePointsLT1Re, status3);
-
-    Logger.addLog(Logger.levels[INFO], "Status vector valid points", "Bounds filter", 
-    validMatches(status0), validMatches(status1), validMatches(status2), validMatches(status3));
- 
-#if SHOW_CIRCULAR_MATCHING_PAIR_BOUNDS_FILTER
-    testShowCirculatMatchingPair(imgLT1, featurePointsLT1, featurePointsRT1, status0);
-    testShowCirculatMatchingPair(imgRT1, featurePointsRT1, featurePointsRT2, status1);
-    testShowCirculatMatchingPair(imgRT2, featurePointsRT2, featurePointsLT2, status2);
-    testShowCirculatMatchingPair(imgLT2, featurePointsLT2, featurePointsLT1Re, status3);
-#endif 
-    /* extract common features across 4 images
-    */
-    std::vector<cv::Point2f> fLT1, fRT1, fRT2, fLT2, fLT1Re;
-    for(int i = 0; i < status0.size(); i++){
-        if(status0[i] == 1 && status1[i] == 1 && status2[i] == 1 && status3[i] == 1){
-            fLT1.push_back(featurePointsLT1[i]);
-            fRT1.push_back(featurePointsRT1[i]);
-            fRT2.push_back(featurePointsRT2[i]);
-            fLT2.push_back(featurePointsLT2[i]);
-            fLT1Re.push_back(featurePointsLT1Re[i]);
-        }
-    }
-    int numCommonFeatures = fLT1.size();
-    Logger.addLog(Logger.levels[INFO], "Extracted common features", numCommonFeatures);
-
-#if SHOW_CIRCULAR_MATCHING_QUAD
-    testShowCirculatMatchingFull(fLT1, fRT1, fRT2, fLT2, fLT1Re);
-#endif
-
-    /* Loop closure; if fLT1 and fLT1Re are the same points then
-     * those features are stable
-    */
-    std::vector<cv::Point2f> fLT1ReOffset, flT2Offset;
-    int threshold = 2;
-    for(int i = 0; i < numCommonFeatures; i++){
-        int offset = std::max(std::abs(fLT1[i].x - fLT1Re[i].x), 
-                              std::abs(fLT1[i].y - fLT1Re[i].y));
-
-        if(offset < threshold){
-            fLT1ReOffset.push_back(fLT1Re[i]);
-            /* use the same features in fLT2, this is to maintain a 
-             * 1:1 correspondence
-            */
-            flT2Offset.push_back(fLT2[i]);
-        }
-    }
-    Logger.addLog(Logger.levels[INFO], "Extracted stable features", fLT1ReOffset.size(),
-                                                                    flT2Offset.size());
-#if 0
-    for(int i = 0; i < fLT1ReOffset.size(); i++)
-        Logger.addLog(Logger.levels[DEBUG], fLT1ReOffset[i].x, fLT1ReOffset[i].y, 
-                                            flT2Offset[i].x, flT2Offset[i].y);
-#endif
-
-#if SHOW_ALL_FAST_FEATURES_STABLE
-    testShowDetectedFeatures(imgLT1, fLT1ReOffset);
-    testShowDetectedFeatures(imgLT2, flT2Offset);
-#endif
-    /* return the final output after removing invalid features
-     * the matching features between LT1 and LT2 are fLT1Re and fLT2
-    */
-    featurePointsLT1 = fLT1ReOffset;
-    return flT2Offset;
 }
 
 /* estimate motion using matched feature points between LT1 and LT2
@@ -584,10 +387,10 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     int depthThresh = 3000;
     /* extract cx, cy, fx, fy from prjectionMat of left camera
     */
-    float cx = projectionCL.at<float>(0, 2);
-    float cy = projectionCL.at<float>(1, 2);
-    float fx = projectionCL.at<float>(0, 0);
-    float fy = projectionCL.at<float>(1, 1);
+    double cx = projectionCL.at<double>(0, 2);
+    double cy = projectionCL.at<double>(1, 2);
+    double fx = projectionCL.at<double>(0, 0);
+    double fy = projectionCL.at<double>(1, 1);
     Logger.addLog(Logger.levels[INFO], "Extracted params from projectionCL", cx, cy, fx, fy);
 
     for(int i = 0; i < numFeatures; i++){
@@ -599,7 +402,7 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
          * NOTE: x goes in horizontal direction -> equivalent to cols
          *       y goes in vertical direction   -> equivalent to rows
         */
-        float z = depthMap.at<float>(v, u);
+        float z = depthMap.at<double>(v, u);
         /* If the depth at the position of our matched feature is above threshold, 
          * then we ignore this feature because we don't actually know the depth and 
          * it will throw our calculations off
@@ -637,18 +440,19 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     /* output R matrix and T vector combined to form 4x4 matrix with last row
      * [0, 0, 0, 1]
     */
-    cv::Mat Rt = cv::Mat::zeros(4, 4, CV_32F);
+    cv::Mat Rt = cv::Mat::zeros(4, 4, CV_64F);
     cv::Mat R, t;
     /* output trajectory (x, y, z) at current instant
     */
-    cv::Mat tPose = cv::Mat::zeros(3, 1, CV_32F);
+    cv::Mat tPose = cv::Mat::zeros(3, 1, CV_64F);
     /* construct intrinsic matrix
     */
-    cv::Mat K = cv::Mat::zeros(3, 3, CV_32F);
+    cv::Mat K = cv::Mat::zeros(3, 3, CV_64F);
     for(int r = 0; r < 3; r++){
         for(int c = 0; c < 3; c++)
-            K.at<float>(r, c) = projectionCL.at<float>(r, c);
+            K.at<double>(r, c) = projectionCL.at<double>(r, c);
     }
+
     /* Second, Pose estimation step;
      * We need to compute a pose that relates points in the global coordinate 
      * frame to the camera's pose. 
@@ -706,7 +510,7 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     cv::Mat rRodrigues;
     /* Assuming no lens distortion
     */
-    cv::Mat distCoeffs = cv::Mat::zeros(4, 1, CV_32F);
+    cv::Mat distCoeffs = cv::Mat::zeros(4, 1, CV_64F);
     /* We actually want to relate the points in the camera's coordinate frame to the 
      * global frame, so we want the opposite (inverse) of the transformation matrix 
      * provided to us by the SolvePnPRansac function.
@@ -716,12 +520,12 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     Logger.addLog(Logger.levels[INFO], "Estimated rRodrigues vector", 
                                         rRodrigues.rows, rRodrigues.cols);
     for(int r = 0; r < 3; r++)
-        Logger.addLog(Logger.levels[DEBUG], rRodrigues.at<float>(r, 0));
+        Logger.addLog(Logger.levels[DEBUG], rRodrigues.at<double>(r, 0));
 
     Logger.addLog(Logger.levels[INFO], "Estimated translation vector", 
                                         t.rows, t.cols);
     for(int r = 0; r < 3; r++)
-        Logger.addLog(Logger.levels[DEBUG], t.at<float>(r, 0));
+        Logger.addLog(Logger.levels[DEBUG], t.at<double>(r, 0));
 
     /* convert rodrigues rotation vector to Euler angles notation, which represent 
      * three consecutive rotations around a combination of X, Y and Z axes.
@@ -731,30 +535,30 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     Logger.addLog(Logger.levels[INFO], "Estimated rotation vector", 
                                         R.rows, R.cols);
     for(int r = 0; r < 3; r++)
-        Logger.addLog(Logger.levels[DEBUG], R.at<float>(r, 0), 
-                                            R.at<float>(r, 1), 
-                                            R.at<float>(r, 2));
+        Logger.addLog(Logger.levels[DEBUG], R.at<double>(r, 0), 
+                                            R.at<double>(r, 1), 
+                                            R.at<double>(r, 2));
     /* Combine R and t to Rt
     */
     for(int r = 0; r < 3; r++){
         for(int c = 0; c < 3; c++){
-            Rt.at<float>(r, c) = R.at<float>(r, c); 
+            Rt.at<double>(r, c) = R.at<double>(r, c); 
         }
         /* add last column
         */
-        Rt.at<float>(r, 3) = t.at<float>(r, 0);
+        Rt.at<double>(r, 3) = t.at<double>(r, 0);
     }
     /* add last row [0, 0, 0, 1]
     */
-    Rt.at<float>(3, 3) = 1;
+    Rt.at<double>(3, 3) = 1;
 
     Logger.addLog(Logger.levels[INFO], "Estimated pose matrix", 
                                         Rt.rows, Rt.cols);
     for(int r = 0; r < 4; r++)
-        Logger.addLog(Logger.levels[DEBUG], Rt.at<float>(r, 0), 
-                                            Rt.at<float>(r, 1), 
-                                            Rt.at<float>(r, 2),
-                                            Rt.at<float>(r, 3));   
+        Logger.addLog(Logger.levels[DEBUG], Rt.at<double>(r, 0), 
+                                            Rt.at<double>(r, 1), 
+                                            Rt.at<double>(r, 2),
+                                            Rt.at<double>(r, 3));   
     
     /* Integrate all pose matrices
      * We are tracking the vehicle motion from the very first camera pose, so we 
@@ -771,24 +575,26 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     Logger.addLog(Logger.levels[INFO], "Integrated pose matrix", 
                                         poseRt.rows, poseRt.cols);
     for(int r = 0; r < 4; r++)
-        Logger.addLog(Logger.levels[DEBUG], poseRt.at<float>(r, 0), 
-                                            poseRt.at<float>(r, 1), 
-                                            poseRt.at<float>(r, 2),
-                                            poseRt.at<float>(r, 3));  
+        Logger.addLog(Logger.levels[DEBUG], poseRt.at<double>(r, 0), 
+                                            poseRt.at<double>(r, 1), 
+                                            poseRt.at<double>(r, 2),
+                                            poseRt.at<double>(r, 3));  
     /* output pose (x, y, z) is the translational component of poseRt
     */
-    tPose.at<float>(0, 0) = poseRt.at<float>(0, 3);
-    tPose.at<float>(1, 0) = poseRt.at<float>(1, 3);
-    tPose.at<float>(2, 0) = poseRt.at<float>(2, 3);
+    tPose.at<double>(0, 0) = poseRt.at<double>(0, 3);
+    tPose.at<double>(1, 0) = poseRt.at<double>(1, 3);
+    tPose.at<double>(2, 0) = poseRt.at<double>(2, 3);
 #endif
 
     Logger.addLog(Logger.levels[INFO], "Computed tPose");
-    Logger.addLog(Logger.levels[INFO], tPose.at<float>(0, 0), 
-                                       tPose.at<float>(1, 0),
-                                       tPose.at<float>(2, 0));
+    Logger.addLog(Logger.levels[INFO], tPose.at<double>(0, 0), 
+                                       tPose.at<double>(1, 0),
+                                       tPose.at<double>(2, 0));
     return tPose;
 }
 
+/* compute mse between groud truth and estimated trajectory
+*/
 float VOClass::computeErrorInPoseEstimation(std::vector<cv::Mat> trajectory){
     Logger.addLog(Logger.levels[INFO], "Trajectory vector size", trajectory.size());
     Logger.addLog(Logger.levels[INFO], "Ground truth vector size", groundTruth.size());
@@ -796,12 +602,12 @@ float VOClass::computeErrorInPoseEstimation(std::vector<cv::Mat> trajectory){
     float error;
 #if 1
     for(int i = 0; i < trajectory.size(); i++)
-        Logger.addLog(Logger.levels[DEBUG], "Calculated: ", trajectory[i].at<float>(0, 0),
-                                                            trajectory[i].at<float>(1, 0),
-                                                            trajectory[i].at<float>(2, 0), 
-                                            " Truth: ",     groundTruth[i].at<float>(0, 0), 
-                                                            groundTruth[i].at<float>(1, 0),
-                                                            groundTruth[i].at<float>(2, 0));
+        Logger.addLog(Logger.levels[DEBUG], "Calculated: ", trajectory[i].at<double>(0, 0),
+                                                            trajectory[i].at<double>(1, 0),
+                                                            trajectory[i].at<double>(2, 0), 
+                                            " Truth: ",     groundTruth[i].at<double>(0, 0), 
+                                                            groundTruth[i].at<double>(1, 0),
+                                                            groundTruth[i].at<double>(2, 0));
 #endif
     
     return error;

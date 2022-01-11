@@ -12,7 +12,7 @@ void VOClass::constructProjectionMatrix(std::string line, cv::Mat& projectionMat
     int k = 1;
     for(int r = 0; r < 3; r++){
         for(int c = 0; c < 4; c++){
-            projectionMat.at<float>(r, c) = std::stof(sub[k++]);
+            projectionMat.at<double>(r, c) = std::stof(sub[k++]);
         }
     }
 }
@@ -35,13 +35,13 @@ void VOClass::constructExtrinsicMatrix(std::string line){
     */
     for(int r = 0; r < 3; r++){
         for(int c = 0; c < 4; c++){
-            extrinsicMat.at<float>(r, c) = std::stof(sub[k++]);
+            extrinsicMat.at<double>(r, c) = std::stof(sub[k++]);
         }
     }
     /* add last row since that is omitted in the text file
      * last row will be [0, 0, 0, 1]
     */
-    extrinsicMat.at<float>(3, 3) = 1;
+    extrinsicMat.at<double>(3, 3) = 1;
 }
 
 void VOClass::extractRT(cv::Mat& R, cv::Mat& T){
@@ -49,13 +49,13 @@ void VOClass::extractRT(cv::Mat& R, cv::Mat& T){
     */
     for(int r = 0; r < 3; r++){
         for(int c = 0; c < 3; c++){
-            R.at<float>(r, c) = extrinsicMat.at<float>(r, c);
+            R.at<double>(r, c) = extrinsicMat.at<double>(r, c);
         }
     }
     /* extract 3x1 R
     */
     for(int r = 0; r < 3; r++)
-        T.at<float>(r, 0) = extrinsicMat.at<float>(r, 3);
+        T.at<double>(r, 0) = extrinsicMat.at<double>(r, 3);
 }
 
 bool VOClass::isOutOfBounds(cv::Point2f featurePoint){
@@ -77,7 +77,7 @@ void VOClass::markInvalidFeaturesBounds(std::vector<cv::Point2f> featurePoints,
     }
 }
 
-int VOClass::validMatches(std::vector<unsigned char> status){
+int VOClass::countValidMatches(std::vector<unsigned char> status){
     int n = status.size();
     int numOnes = 0;
     for(int i = 0; i < n; i++){
@@ -108,7 +108,7 @@ void VOClass::removeInvalidFeatures(std::vector<cv::Point2f>& featurePointsPrev,
     featurePointsCurrent = validPointsCurrent;
 }
 
-void VOClass::writeToPLY(cv::Mat pointCloud, cv::Mat colors, int depthThresh, int numVertices){
+void VOClass::writeToPLY(cv::Mat depthMap, cv::Mat colors, int depthThresh, int numVertices){
     /* write to file
     */
     std::ofstream plyFile;
@@ -129,11 +129,11 @@ void VOClass::writeToPLY(cv::Mat pointCloud, cv::Mat colors, int depthThresh, in
         /* file contents
             * x, y, z, r, g, b
         */
-        for(int r = 0; r < pointCloud.rows; r++){
-            for(int c = 0; c < pointCloud.cols; c++){
+        for(int r = 0; r < depthMap.rows; r++){
+            for(int c = 0; c < depthMap.cols; c++){
                 /* vertices
                 */
-                float z = pointCloud.at<float>(r, c);
+                float z = depthMap.at<double>(r, c);
                 /* filer z values beyond the threshold
                 */
                 if(z > depthThresh)
@@ -164,7 +164,7 @@ int* VOClass::computeHistogram(cv::Mat src, int maxVal){
     int *hist = (int*)calloc((maxVal + 1), sizeof(int));
     for(int r = 0; r < src.rows; r++){
         for(int c = 0; c < src.cols; c++){
-            int val = src.at<float>(r, c);
+            int val = src.at<double>(r, c);
             hist[val]++;
         }
     }

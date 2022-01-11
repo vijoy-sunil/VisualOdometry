@@ -27,6 +27,7 @@
 				"${workspaceFolder}/Source/main.cpp",
                 "${workspaceFolder}/Source/Utils.cpp",
                 "${workspaceFolder}/Source/VOClass.cpp",
+                "${workspaceFolder}/Source/VOClassFeatures.cpp",
                 "${workspaceFolder}/Source/VOClassTests.cpp",
                 "${workspaceFolder}/Source/VOClassUtils.cpp",
                 

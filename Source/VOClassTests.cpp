@@ -83,8 +83,8 @@ void VOClass::testShowGroundTruthTrajectory(void){
         /* the camera on the car is facing the z axis, so to get a
          * top down view, we plot x-z axis
         */
-        int p1 = groundTruth[i].at<float>(0, 0) + trajectoryC/2;
-        int p2 = groundTruth[i].at<float>(2, 0) + trajectoryR/4;
+        int p1 = groundTruth[i].at<double>(0, 0) + trajectoryC/2;
+        int p2 = groundTruth[i].at<double>(2, 0) + trajectoryR/4;
         /* img, center, radius, color, thickness
          */
         /* different color for the starting point and ending point
@@ -234,11 +234,11 @@ void VOClass::testShowTrajectoryPair(std::vector<cv::Mat> trajectory){
         /* the camera on the car is facing the z axis, so to get a
          * top down view, we plot x-z axis
         */
-        int p1G = groundTruth[i].at<float>(0, 0) + windowC/2;
-        int p2G = groundTruth[i].at<float>(2, 0) + windowR/4; 
+        int p1G = groundTruth[i].at<double>(0, 0) + windowC/2;
+        int p2G = groundTruth[i].at<double>(2, 0) + windowR/4; 
 
-        int p1E = trajectory[i].at<float>(0, 0) + windowC/2;
-        int p2E = trajectory[i].at<float>(2, 0) + windowR/2;    
+        int p1E = trajectory[i].at<double>(0, 0) + windowC/2;
+        int p2E = trajectory[i].at<double>(2, 0) + windowR/2;    
         /* different color for the starting point and ending point
          */
         if(i == 0){

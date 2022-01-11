@@ -14,15 +14,15 @@ class VOClass{
         /* 3x4 projection matrix of camera1 (left) and camera2 (right); we call 
          * the cameras CL and CR. 
         */
-        cv::Mat projectionCL = cv::Mat::zeros(3, 4, CV_32F);
-        cv::Mat projectionCR = cv::Mat::zeros(3, 4, CV_32F);
+        cv::Mat projectionCL = cv::Mat::zeros(3, 4, CV_64F);
+        cv::Mat projectionCR = cv::Mat::zeros(3, 4, CV_64F);
         /* read from calib file and store into matrix; this fn is called by 
          * getProjectionMatrices()
         */
         void constructProjectionMatrix(std::string line, cv::Mat& projectionMat);
         /* extrinsic matrix used to find camera pose as ground truth
         */
-        cv::Mat extrinsicMat = cv::Mat::zeros(4, 4, CV_32F);
+        cv::Mat extrinsicMat = cv::Mat::zeros(4, 4, CV_64F);
         /* vector to hold ground truth poses
         */
         std::vector<cv::Mat> groundTruth;
@@ -41,17 +41,17 @@ class VOClass{
         std::vector<unsigned char>& status);
         /* get number of valid matches (count of one's) in status vector
         */
-        int validMatches(std::vector<unsigned char> status);
+        int countValidMatches(std::vector<unsigned char> status);
         /* remove invalid features based on status vector
         */
         void removeInvalidFeatures(std::vector<cv::Point2f>& featurePointsPrev, 
                                    std::vector<cv::Point2f>& featurePointsCurrent, 
                                    std::vector<unsigned char> status);
-        /* visualize point cloud in meshlab by writing to .ply file
+        /* visualize depth map in meshlab by writing to .ply file
          * Polygon File Format
          * https://www.meshlab.net/
         */
-        void writeToPLY(cv::Mat pointCloud, cv::Mat colors, int depthThresh, int numVertices);
+        void writeToPLY(cv::Mat depthMap, cv::Mat colors, int depthThresh, int numVertices);
         /* compute histogram
         */
         int* computeHistogram(cv::Mat src, int maxVal);
@@ -70,7 +70,7 @@ class VOClass{
         */
         bool getProjectionMatrices(const std::string calibrationFile);
         /* get ground truth output poses, so that we can compare our estimate with 
-         * it at the end
+         * it at the end; number of frames is computed from this as well
         */
         bool getGroundTruthPath(const std::string groundTruthFile, int& numFrames);
         /* compute disparity
@@ -88,7 +88,7 @@ class VOClass{
         /* integrated pose matrix [R|t] (homogeneous matrix 4x4)
          * the first pose is identity
         */
-        cv::Mat poseRt = cv::Mat::eye(4, 4, CV_32F);
+        cv::Mat poseRt = cv::Mat::eye(4, 4, CV_64F);
         /* estimate motion
         */
         cv::Mat estimateMotion(std::vector<cv::Point2f> featurePointsT1, 

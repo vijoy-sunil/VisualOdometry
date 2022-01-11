@@ -14,14 +14,15 @@ int main(void){
      * application for only a limited number of frames
     */
 #if LIMITED_FRAMES_TEST_MODE
-    numFrames = 3;
+    numFrames = 2;
 #endif
+    assert(numFrames != 1);
     /* output trajectory
     */
     std::vector<cv::Mat> trajectory;
     /* first element in trajectory has to be (0, 0, 0)
     */
-    trajectory.push_back(cv::Mat::zeros(3, 1, CV_32F));
+    trajectory.push_back(cv::Mat::zeros(3, 1, CV_64F));
     /* main loop
     */
     for(int i = 0; i < numFrames-1; i++){
