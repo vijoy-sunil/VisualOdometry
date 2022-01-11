@@ -14,7 +14,7 @@ int main(void){
      * application for only a limited number of frames
     */
 #if LIMITED_FRAMES_TEST_MODE
-    numFrames = 2;
+    numFrames = 3;
 #endif
     /* output trajectory
     */

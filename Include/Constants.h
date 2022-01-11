@@ -17,7 +17,7 @@
 #define SHOW_CIRCULAR_MATCHING_QUAD                 0
 #define SHOW_ALL_FAST_FEATURES_STABLE               0
 #define POSE_ESTIMATION_RANSAC                      1
-#define SHOW_GROUND_TRUTH_AND_ESTIMATED_TRAJECTORY  1
+#define SHOW_GROUND_TRUTH_AND_ESTIMATED_TRAJECTORY  0
 
 /* choose the set of images to use in the KITTI dataset
 */

@@ -28,14 +28,16 @@ bool VOClass::readStereoImagesT1T2(int frameNumber){
     */
     std::string imgName = formatStringWidth(frameNumber, nameWidth) + ".png";
     imgLT1 = cv::imread(leftImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
-    Logger.addLog(Logger.levels[INFO], "Read image", leftImagesPath + imgName);
+    Logger.addLog(Logger.levels[INFO], "Read image", leftImagesPath + imgName, imgLT1.rows, 
+                                                                               imgLT1.cols);
     if(imgLT1.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgLT1", "leftImagesPath + imgName");
         assert(false);
     }
 
     imgRT1 = cv::imread(rightImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
-    Logger.addLog(Logger.levels[INFO], "Read image", rightImagesPath + imgName);
+    Logger.addLog(Logger.levels[INFO], "Read image", rightImagesPath + imgName, imgRT1.rows, 
+                                                                                imgRT1.cols);
     if(imgRT1.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgRT1", "rightImagesPath + imgName");
         assert(false);        
@@ -45,14 +47,16 @@ bool VOClass::readStereoImagesT1T2(int frameNumber){
     */
     imgName = formatStringWidth(frameNumber+1, nameWidth) + ".png";
     imgLT2 = cv::imread(leftImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
-    Logger.addLog(Logger.levels[INFO], "Read image", leftImagesPath + imgName);
+    Logger.addLog(Logger.levels[INFO], "Read image", leftImagesPath + imgName, imgLT2.rows, 
+                                                                               imgLT2.cols);
     if(imgLT2.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgLT2", "leftImagesPath + imgName");
         assert(false);
     }
 
     imgRT2 = cv::imread(rightImagesPath + imgName, cv::ImreadModes::IMREAD_GRAYSCALE);
-    Logger.addLog(Logger.levels[INFO], "Read image", rightImagesPath + imgName);
+    Logger.addLog(Logger.levels[INFO], "Read image", rightImagesPath + imgName, imgRT2.rows, 
+                                                                                imgRT2.cols);
     if(imgRT2.empty()){
         Logger.addLog(Logger.levels[ERROR], "Unable to open imgRT2", "rightImagesPath + imgName");
         assert(false);        
@@ -513,28 +517,27 @@ std::vector<cv::Point2f> VOClass::matchFeatureKLT(std::vector<cv::Point2f> &feat
      * those features are stable
     */
     std::vector<cv::Point2f> fLT1ReOffset, flT2Offset;
-    int threshold = 5;
+    int threshold = 2;
     for(int i = 0; i < numCommonFeatures; i++){
         int offset = std::max(std::abs(fLT1[i].x - fLT1Re[i].x), 
                               std::abs(fLT1[i].y - fLT1Re[i].y));
 
         if(offset < threshold){
-            /* round fLT1Re to int
-            */
-            int x = round(fLT1Re[i].x);
-            int y = round(fLT1Re[i].y);
-            fLT1ReOffset.push_back(cv::Point2f(x, y));
+            fLT1ReOffset.push_back(fLT1Re[i]);
             /* use the same features in fLT2, this is to maintain a 
              * 1:1 correspondence
             */
             flT2Offset.push_back(fLT2[i]);
-#if 0
-        Logger.addLog(Logger.levels[DEBUG], fLT1[i].x, fLT1Re[i].x, fLT1[i].y, fLT1Re[i].y);
-#endif
         }
     }
     Logger.addLog(Logger.levels[INFO], "Extracted stable features", fLT1ReOffset.size(),
                                                                     flT2Offset.size());
+#if 0
+    for(int i = 0; i < fLT1ReOffset.size(); i++)
+        Logger.addLog(Logger.levels[DEBUG], fLT1ReOffset[i].x, fLT1ReOffset[i].y, 
+                                            flT2Offset[i].x, flT2Offset[i].y);
+#endif
+
 #if SHOW_ALL_FAST_FEATURES_STABLE
     testShowDetectedFeatures(imgLT1, fLT1ReOffset);
     testShowDetectedFeatures(imgLT2, flT2Offset);
@@ -621,11 +624,14 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     imagePointsT1.size());
     Logger.addLog(Logger.levels[INFO], "Object points size", objectPoints.size());
 #if 0
-    Logger.addLog(Logger.levels[DEBUG], "3D object points");
-    for(int i = 0; i < objectPoints.size(); i++)
+    Logger.addLog(Logger.levels[DEBUG], "3D object points(T1) and 2D image points(T2)");
+    for(int i = 0; i < objectPoints.size(); i++){
         Logger.addLog(Logger.levels[DEBUG], objectPoints[i].x, 
                                             objectPoints[i].y, 
-                                            objectPoints[i].z);
+                                            objectPoints[i].z,
+                                            imagePointsT2[i].x,
+                                            imagePointsT2[i].y);
+    }
 #endif
 
     /* output R matrix and T vector combined to form 4x4 matrix with last row
@@ -761,7 +767,7 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
      * translation vector component of this transformation matrix will describe 
      * where the camera's curent origin is in this global referece frame.
     */
-    poseRt = poseRt * (Rt.inv(cv::DECOMP_CHOLESKY));
+    poseRt = poseRt * (Rt.inv());
     Logger.addLog(Logger.levels[INFO], "Integrated pose matrix", 
                                         poseRt.rows, poseRt.cols);
     for(int r = 0; r < 4; r++)
@@ -797,6 +803,6 @@ float VOClass::computeErrorInPoseEstimation(std::vector<cv::Mat> trajectory){
                                                             groundTruth[i].at<float>(1, 0),
                                                             groundTruth[i].at<float>(2, 0));
 #endif
-
+    
     return error;
 }

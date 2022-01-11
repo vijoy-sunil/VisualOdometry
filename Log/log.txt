@@ -7,10 +7,10 @@
 [ DEB ] 0 718.856 185.216 0 
 [ DEB ] 0 0 1 0 
 [ INF ] Constructed ground truth trajectory 4541 
-[ INF ] Read image ../../Data/sequences/00/image_0/000000.png 
-[ INF ] Read image ../../Data/sequences/00/image_1/000000.png 
-[ INF ] Read image ../../Data/sequences/00/image_0/000001.png 
-[ INF ] Read image ../../Data/sequences/00/image_1/000001.png 
+[ INF ] Read image ../../Data/sequences/00/image_0/000000.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000000.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000001.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000001.png 376 1241 
 [ INF ] Computed disparity map 3 
 [ INF ] Computed true disparity map 5 
 [ INF ] Computed depth map 718.856 0.537166 4.06468 3861.45 
@@ -21,38 +21,81 @@
 [ INF ] Status vector valid points 4467 4243 4187 4231 
 [ INF ] Status vector valid points Bounds filter 4443 4200 4151 4227 
 [ INF ] Extracted common features 4136 
-[ INF ] Extracted stable features 3576 3576 
+[ INF ] Extracted stable features 3350 3350 
 [ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
-[ INF ] Feature points size before depth filter 3576 
-[ INF ] Feature points size after depth filter 3427 
-[ INF ] Object points size 3427 
+[ INF ] Feature points size before depth filter 3350 
+[ INF ] Feature points size after depth filter 3230 
+[ INF ] Object points size 3230 
 [ INF ] Estimated rRodrigues vector 3 1 
-[ DEB ] 2.36664e-28 
-[ DEB ] -2.6757e+25 
-[ DEB ] -7.48335e-14 
+[ DEB ] 6.8005e+22 
+[ DEB ] -4.13333e+31 
+[ DEB ] -2.42661e-32 
 [ INF ] Estimated translation vector 3 1 
-[ DEB ] 2.40955e-32 
-[ DEB ] 1.17975e+35 
-[ DEB ] -0.662857 
+[ DEB ] -2.70089e-32 
+[ DEB ] 4.26879e-29 
+[ DEB ] 1.47915e-21 
 [ INF ] Estimated rotation vector 3 3 
-[ DEB ] 9.62219e-14 1.875 -0.186151 
-[ DEB ] -2.33318e-38 -0.904329 -3.55155e-34 
-[ DEB ] -8.39263e-19 -0.921658 -9.21015e-15 
+[ DEB ] 2.12114e-29 1.875 -8.28945e+34 
+[ DEB ] -0.000749266 -0.901367 -4.66313e+11 
+[ DEB ] 2.34454e-17 -0.92008 -3.10842e-30 
 [ INF ] Estimated pose matrix 4 4 
-[ DEB ] 9.62219e-14 1.875 -0.186151 2.40955e-32 
-[ DEB ] -2.33318e-38 -0.904329 -3.55155e-34 1.17975e+35 
-[ DEB ] -8.39263e-19 -0.921658 -9.21015e-15 -0.662857 
+[ DEB ] 2.12114e-29 1.875 -8.28945e+34 -2.70089e-32 
+[ DEB ] -0.000749266 -0.901367 -4.66313e+11 4.26879e-29 
+[ DEB ] 2.34454e-17 -0.92008 -3.10842e-30 1.47915e-21 
 [ DEB ] 0 0 0 1 
 [ INF ] Integrated pose matrix 4 4 
-[ DEB ] 0 0 0 0 
-[ DEB ] 0 0 0 0 
-[ DEB ] 0 0 0 0 
-[ DEB ] 0 0 0 0 
+[ DEB ] -3.82424e-05 -1334.64 1307.5 5.69557e-26 
+[ DEB ] 3.17892e-08 1.50985e-26 -1.08686 1.44048e-32 
+[ DEB ] -1.20635e-35 0 -2.45838e-35 0 
+[ DEB ] 0 0 0 1 
 [ INF ] Computed tPose 
-[ INF ] 0 0 0 
-[ INF ] Trajectory vector size 2 
+[ INF ] 5.69557e-26 1.44048e-32 0 
+[ INF ] Read image ../../Data/sequences/00/image_0/000001.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000001.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000002.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000002.png 376 1241 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed depth map 718.856 0.537166 4.06468 3861.45 
+[ INF ] Computed feature vector 4768 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 4768 4768 4768 4768 4768 
+[ INF ] Status vector sizes 4768 4768 4768 4768 
+[ INF ] Status vector valid points 4601 4394 4318 4332 
+[ INF ] Status vector valid points Bounds filter 4590 4328 4270 4328 
+[ INF ] Extracted common features 4253 
+[ INF ] Extracted stable features 3401 3401 
+[ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
+[ INF ] Feature points size before depth filter 3401 
+[ INF ] Feature points size after depth filter 3260 
+[ INF ] Object points size 3260 
+[ INF ] Estimated rRodrigues vector 3 1 
+[ DEB ] -4.29589e-09 
+[ DEB ] 1.29507e-18 
+[ DEB ] -6279.39 
+[ INF ] Estimated translation vector 3 1 
+[ DEB ] -1.33612e-15 
+[ DEB ] -1.88085e-07 
+[ DEB ] 6.70531e+27 
+[ INF ] Estimated rotation vector 3 3 
+[ DEB ] 2.01426e+26 1.875 4.92281e+33 
+[ DEB ] -6.94335e+24 0.831968 -4.7769e+27 
+[ DEB ] 1.75964e-10 -0.93916 10788.3 
+[ INF ] Estimated pose matrix 4 4 
+[ DEB ] 2.01426e+26 1.875 4.92281e+33 -1.33612e-15 
+[ DEB ] -6.94335e+24 0.831968 -4.7769e+27 -1.88085e-07 
+[ DEB ] 1.75964e-10 -0.93916 10788.3 6.70531e+27 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] -3.11416e-27 -9.03356e-26 1421.1 -9.52891e+30 
+[ DEB ] -2.20791e-34 -1.09835e-32 -1.60766e-26 107.798 
+[ DEB ] 0 0 0 -1.03206e-32 
+[ DEB ] 0 0 0 1 
+[ INF ] Computed tPose 
+[ INF ] -9.52891e+30 107.798 -1.03206e-32 
+[ INF ] Trajectory vector size 3 
 [ INF ] Ground truth vector size 4541 
 [ DEB ] Calculated:  0 0 0  Truth:  5.55112e-17 3.33067e-16 -4.44089e-16 
-[ DEB ] Calculated:  0 0 0  Truth:  -0.0469029 -0.0283993 0.858694 
+[ DEB ] Calculated:  5.69557e-26 1.44048e-32 0  Truth:  -0.0469029 -0.0283993 0.858694 
+[ DEB ] Calculated:  -9.52891e+30 107.798 -1.03206e-32  Truth:  -0.0937435 -0.0567606 1.71627 
 [ INF ] Measured error 0 
-[ TST ] Show ground truth and estimated trajectory 
