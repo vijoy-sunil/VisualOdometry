@@ -615,5 +615,8 @@ float VOClass::computeErrorInPoseEstimation(std::vector<cv::Mat> estimatedTrajec
                       pow(groundTruth[i].at<double>(2, 0) - estimatedTrajectory[i].at<double>(2, 0), 2)
                       );
     }
+    /* mean
+    */
+    error = error/estimatedTrajectory.size();
     return error;
 }
