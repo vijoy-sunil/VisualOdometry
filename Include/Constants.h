@@ -22,6 +22,9 @@
 /* choose the set of images to use in the KITTI dataset
 */
 const std::string sequenceID = "00";
+/* limited frame mode
+*/
+const int limitedFramesCount = 10;
 /* file names
 */
 const std::string calibrationFile= "calib.txt";

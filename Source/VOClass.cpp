@@ -593,15 +593,15 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     return tPose;
 }
 
-/* compute mse between groud truth and estimated trajectory
+/* compute rmse between groud truth and estimated trajectory
 */
 float VOClass::computeErrorInPoseEstimation(std::vector<cv::Mat> estimatedTrajectory){
     Logger.addLog(Logger.levels[INFO], "Estiamted trajectory vector size", estimatedTrajectory.size());
     Logger.addLog(Logger.levels[INFO], "Ground truth vector size", groundTruth.size());
     
     float error = 0;;
+    for(int i = 0; i < estimatedTrajectory.size(); i++){
 #if 1
-    for(int i = 0; i < estimatedTrajectory.size(); i++)
         Logger.addLog(Logger.levels[DEBUG], "Calculated: ", estimatedTrajectory[i].at<double>(0, 0),
                                                             estimatedTrajectory[i].at<double>(1, 0),
                                                             estimatedTrajectory[i].at<double>(2, 0), 
@@ -609,14 +609,12 @@ float VOClass::computeErrorInPoseEstimation(std::vector<cv::Mat> estimatedTrajec
                                                             groundTruth[i].at<double>(1, 0),
                                                             groundTruth[i].at<double>(2, 0));
 #endif
-    for(int i = 0; i < estimatedTrajectory.size(); i++){
-        error += sqrt(pow(groundTruth[i].at<double>(0, 0) - estimatedTrajectory[i].at<double>(0, 0), 2) +
-                      pow(groundTruth[i].at<double>(1, 0) - estimatedTrajectory[i].at<double>(1, 0), 2) +
-                      pow(groundTruth[i].at<double>(2, 0) - estimatedTrajectory[i].at<double>(2, 0), 2)
-                      );
+        error += pow(groundTruth[i].at<double>(0, 0) - estimatedTrajectory[i].at<double>(0, 0), 2) +
+                 pow(groundTruth[i].at<double>(1, 0) - estimatedTrajectory[i].at<double>(1, 0), 2) +
+                 pow(groundTruth[i].at<double>(2, 0) - estimatedTrajectory[i].at<double>(2, 0), 2);
     }
     /* mean
     */
-    error = error/estimatedTrajectory.size();
+    error = sqrt(error/estimatedTrajectory.size());
     return error;
 }

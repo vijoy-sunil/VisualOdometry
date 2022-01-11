@@ -50,9 +50,361 @@
 [ DEB ] 0 0 0 1 
 [ INF ] Computed tPose 
 [ INF ] -0.00349343 -0.00950105 0.663007 
-[ INF ] Estiamted trajectory vector size 2 
+[ INF ] Read image ../../Data/sequences/00/image_0/000001.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000001.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000002.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000002.png 376 1241 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed depth map 718.856 0.537166 4.06468 3861.45 
+[ INF ] Computed feature vector 4768 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 4768 4768 4768 4768 4768 
+[ INF ] Status vector sizes 4768 4768 4768 4768 
+[ INF ] Status vector valid points 4601 4394 4318 4332 
+[ INF ] Status vector valid points Bounds filter 4590 4328 4270 4328 
+[ INF ] Extracted common features 4253 
+[ INF ] Extracted stable features 3401 3401 
+[ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
+[ INF ] Feature points size before depth filter 3401 
+[ INF ] Feature points size after depth filter 3260 
+[ INF ] Object points size 3260 
+[ INF ] Estimated rRodrigues vector 3 1 
+[ DEB ] -0.00149524 
+[ DEB ] 0.00400907 
+[ DEB ] 0.00128375 
+[ INF ] Estimated translation vector 3 1 
+[ DEB ] 0.00835261 
+[ DEB ] 0.00377712 
+[ DEB ] -0.683084 
+[ INF ] Estimated rotation vector 3 3 
+[ DEB ] 0.999991 -0.00128674 0.0040081 
+[ DEB ] 0.00128075 0.999998 0.00149781 
+[ DEB ] -0.00401002 -0.00149266 0.999991 
+[ INF ] Estimated pose matrix 4 4 
+[ DEB ] 0.999991 -0.00128674 0.0040081 0.00835261 
+[ DEB ] 0.00128075 0.999998 0.00149781 0.00377712 
+[ DEB ] -0.00401002 -0.00149266 0.999991 -0.683084 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] 0.999972 -0.00150138 -0.00736767 -0.0168729 
+[ DEB ] 0.00147571 0.999993 -0.00348793 -0.015673 
+[ DEB ] 0.00737286 0.00347696 0.999967 1.34599 
+[ DEB ] 0 0 0 1 
+[ INF ] Computed tPose 
+[ INF ] -0.0168729 -0.015673 1.34599 
+[ INF ] Read image ../../Data/sequences/00/image_0/000002.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000002.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000003.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000003.png 376 1241 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed depth map 718.856 0.537166 4.09975 3861.45 
+[ INF ] Computed feature vector 4974 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 4974 4974 4974 4974 4974 
+[ INF ] Status vector sizes 4974 4974 4974 4974 
+[ INF ] Status vector valid points 4814 4654 4631 4689 
+[ INF ] Status vector valid points Bounds filter 4805 4573 4575 4680 
+[ INF ] Extracted common features 4537 
+[ INF ] Extracted stable features 3545 3545 
+[ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
+[ INF ] Feature points size before depth filter 3545 
+[ INF ] Feature points size after depth filter 3396 
+[ INF ] Object points size 3396 
+[ INF ] Estimated rRodrigues vector 3 1 
+[ DEB ] -0.00129418 
+[ DEB ] 0.00385236 
+[ DEB ] -7.12461e-05 
+[ INF ] Estimated translation vector 3 1 
+[ DEB ] 0.0105383 
+[ DEB ] 0.00504123 
+[ DEB ] -0.703743 
+[ INF ] Estimated rotation vector 3 3 
+[ DEB ] 0.999993 6.87531e-05 0.0038524 
+[ DEB ] -7.37388e-05 0.999999 0.00129404 
+[ DEB ] -0.00385231 -0.00129432 0.999992 
+[ INF ] Estimated pose matrix 4 4 
+[ DEB ] 0.999993 6.87531e-05 0.0038524 0.0105383 
+[ DEB ] -7.37388e-05 0.999999 0.00129404 0.00504123 
+[ DEB ] -0.00385231 -0.00129432 0.999992 -0.703743 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] 0.999936 -0.00158465 -0.0112179 -0.035297 
+[ DEB ] 0.00153102 0.999987 -0.00478789 -0.0240998 
+[ DEB ] 0.0112253 0.00477041 0.999926 2.04954 
+[ DEB ] 0 0 0 1 
+[ INF ] Computed tPose 
+[ INF ] -0.035297 -0.0240998 2.04954 
+[ INF ] Read image ../../Data/sequences/00/image_0/000003.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000003.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000004.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000004.png 376 1241 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed depth map 718.856 0.537166 4.06468 3861.45 
+[ INF ] Computed feature vector 4976 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 4976 4976 4976 4976 4976 
+[ INF ] Status vector sizes 4976 4976 4976 4976 
+[ INF ] Status vector valid points 4847 4646 4563 4614 
+[ INF ] Status vector valid points Bounds filter 4805 4550 4513 4612 
+[ INF ] Extracted common features 4464 
+[ INF ] Extracted stable features 3548 3548 
+[ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
+[ INF ] Feature points size before depth filter 3548 
+[ INF ] Feature points size after depth filter 3421 
+[ INF ] Object points size 3421 
+[ INF ] Estimated rRodrigues vector 3 1 
+[ DEB ] -0.000455362 
+[ DEB ] 0.00496897 
+[ DEB ] 0.00119351 
+[ INF ] Estimated translation vector 3 1 
+[ DEB ] 0.00669665 
+[ DEB ] 0.00618632 
+[ DEB ] -0.719394 
+[ INF ] Estimated rotation vector 3 3 
+[ DEB ] 0.999987 -0.00119464 0.00496867 
+[ DEB ] 0.00119237 0.999999 0.000458325 
+[ DEB ] -0.00496922 -0.000452395 0.999988 
+[ INF ] Estimated pose matrix 4 4 
+[ DEB ] 0.999987 -0.00119464 0.00496867 0.00669665 
+[ DEB ] 0.00119237 0.999999 0.000458325 0.00618632 
+[ DEB ] -0.00496922 -0.000452395 0.999988 -0.719394 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] 0.999869 -0.000397495 -0.0161859 -0.0536343 
+[ DEB ] 0.000312589 0.999986 -0.00524783 -0.0340634 
+[ DEB ] 0.0161878 0.00524208 0.999855 2.76869 
+[ DEB ] 0 0 0 1 
+[ INF ] Computed tPose 
+[ INF ] -0.0536343 -0.0340634 2.76869 
+[ INF ] Read image ../../Data/sequences/00/image_0/000004.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000004.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000005.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000005.png 376 1241 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed depth map 718.856 0.537166 4.13819 3861.45 
+[ INF ] Computed feature vector 5041 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 5041 5041 5041 5041 5041 
+[ INF ] Status vector sizes 5041 5041 5041 5041 
+[ INF ] Status vector valid points 4828 4560 4510 4534 
+[ INF ] Status vector valid points Bounds filter 4807 4486 4452 4533 
+[ INF ] Extracted common features 4422 
+[ INF ] Extracted stable features 3664 3664 
+[ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
+[ INF ] Feature points size before depth filter 3664 
+[ INF ] Feature points size after depth filter 3565 
+[ INF ] Object points size 3565 
+[ INF ] Estimated rRodrigues vector 3 1 
+[ DEB ] 6.2996e-07 
+[ DEB ] 0.00443133 
+[ DEB ] -0.00128401 
+[ INF ] Estimated translation vector 3 1 
+[ DEB ] 0.00507765 
+[ DEB ] 0.00958239 
+[ DEB ] -0.729222 
+[ INF ] Estimated rotation vector 3 3 
+[ DEB ] 0.999989 0.00128401 0.00443131 
+[ DEB ] -0.001284 0.999999 -3.47489e-06 
+[ DEB ] -0.00443132 -2.21497e-06 0.99999 
+[ INF ] Estimated pose matrix 4 4 
+[ DEB ] 0.999989 0.00128401 0.00443131 0.00507765 
+[ DEB ] -0.001284 0.999999 -3.47489e-06 0.00958239 
+[ DEB ] -0.00443132 -2.21497e-06 0.99999 -0.729222 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] 0.999786 -0.00168127 -0.0206165 -0.0737288 
+[ DEB ] 0.00157332 0.999985 -0.00525138 -0.047483 
+[ DEB ] 0.020625 0.00521782 0.999774 3.49759 
+[ DEB ] 0 0 0 1 
+[ INF ] Computed tPose 
+[ INF ] -0.0737288 -0.047483 3.49759 
+[ INF ] Read image ../../Data/sequences/00/image_0/000005.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000005.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000006.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000006.png 376 1241 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed depth map 718.856 0.537166 4.06468 3861.45 
+[ INF ] Computed feature vector 5031 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 5031 5031 5031 5031 5031 
+[ INF ] Status vector sizes 5031 5031 5031 5031 
+[ INF ] Status vector valid points 4830 4642 4582 4604 
+[ INF ] Status vector valid points Bounds filter 4823 4565 4533 4598 
+[ INF ] Extracted common features 4489 
+[ INF ] Extracted stable features 3648 3648 
+[ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
+[ INF ] Feature points size before depth filter 3648 
+[ INF ] Feature points size after depth filter 3508 
+[ INF ] Object points size 3508 
+[ INF ] Estimated rRodrigues vector 3 1 
+[ DEB ] -0.00113415 
+[ DEB ] 0.00455007 
+[ DEB ] 0.0016613 
+[ INF ] Estimated translation vector 3 1 
+[ DEB ] 0.00899914 
+[ DEB ] 0.00687865 
+[ DEB ] -0.747198 
+[ INF ] Estimated rotation vector 3 3 
+[ DEB ] 0.999988 -0.00166387 0.00454911 
+[ DEB ] 0.00165871 0.999998 0.00113793 
+[ DEB ] -0.00455099 -0.00113037 0.999989 
+[ INF ] Estimated pose matrix 4 4 
+[ DEB ] 0.999988 -0.00166387 0.00454911 0.00899914 
+[ DEB ] 0.00165871 0.999998 0.00113793 0.00687865 
+[ DEB ] -0.00455099 -0.00113037 0.999989 -0.747198 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] 0.999683 -4.63754e-05 -0.0251644 -0.101528 
+[ DEB ] -0.000114433 0.99998 -0.00638883 -0.0591342 
+[ DEB ] 0.0251642 0.00638969 0.999663 4.24427 
+[ DEB ] 0 0 0 1 
+[ INF ] Computed tPose 
+[ INF ] -0.101528 -0.0591342 4.24427 
+[ INF ] Read image ../../Data/sequences/00/image_0/000006.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000006.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000007.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000007.png 376 1241 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed depth map 718.856 0.537166 4.06468 3861.45 
+[ INF ] Computed feature vector 4979 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 4979 4979 4979 4979 4979 
+[ INF ] Status vector sizes 4979 4979 4979 4979 
+[ INF ] Status vector valid points 4764 4509 4470 4524 
+[ INF ] Status vector valid points Bounds filter 4752 4434 4405 4524 
+[ INF ] Extracted common features 4381 
+[ INF ] Extracted stable features 3506 3506 
+[ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
+[ INF ] Feature points size before depth filter 3506 
+[ INF ] Feature points size after depth filter 3419 
+[ INF ] Object points size 3419 
+[ INF ] Estimated rRodrigues vector 3 1 
+[ DEB ] -0.000478106 
+[ DEB ] 0.00492246 
+[ DEB ] 0.00250736 
+[ INF ] Estimated translation vector 3 1 
+[ DEB ] 0.01094 
+[ DEB ] 0.00666842 
+[ DEB ] -0.762087 
+[ INF ] Estimated rotation vector 3 3 
+[ DEB ] 0.999985 -0.00250852 0.00492183 
+[ DEB ] 0.00250617 0.999997 0.000484275 
+[ DEB ] -0.00492303 -0.000471932 0.999988 
+[ INF ] Estimated pose matrix 4 4 
+[ DEB ] 0.999985 -0.00250852 0.00492183 0.01094 
+[ DEB ] 0.00250617 0.999997 0.000484275 0.00666842 
+[ DEB ] -0.00492303 -0.000471932 0.999988 -0.762087 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] 0.999544 0.00244681 -0.0300855 -0.135407 
+[ DEB ] -0.00265435 0.999973 -0.00686011 -0.0710014 
+[ DEB ] 0.0300679 0.00693684 0.999524 5.00562 
+[ DEB ] 0 0 0 1 
+[ INF ] Computed tPose 
+[ INF ] -0.135407 -0.0710014 5.00562 
+[ INF ] Read image ../../Data/sequences/00/image_0/000007.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000007.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000008.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000008.png 376 1241 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed depth map 718.856 0.537166 4.06468 3861.45 
+[ INF ] Computed feature vector 5131 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 5131 5131 5131 5131 5131 
+[ INF ] Status vector sizes 5131 5131 5131 5131 
+[ INF ] Status vector valid points 4905 4627 4561 4540 
+[ INF ] Status vector valid points Bounds filter 4892 4529 4499 4538 
+[ INF ] Extracted common features 4437 
+[ INF ] Extracted stable features 3495 3495 
+[ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
+[ INF ] Feature points size before depth filter 3495 
+[ INF ] Feature points size after depth filter 3405 
+[ INF ] Object points size 3405 
+[ INF ] Estimated rRodrigues vector 3 1 
+[ DEB ] 0.0017082 
+[ DEB ] 0.00435273 
+[ DEB ] 0.000276377 
+[ INF ] Estimated translation vector 3 1 
+[ DEB ] 0.00622924 
+[ DEB ] 0.00721095 
+[ DEB ] -0.777905 
+[ INF ] Estimated rotation vector 3 3 
+[ DEB ] 0.99999 -0.000272658 0.00435295 
+[ DEB ] 0.000280093 0.999999 -0.00170759 
+[ DEB ] -0.00435248 0.00170879 0.999989 
+[ INF ] Estimated pose matrix 4 4 
+[ DEB ] 0.99999 -0.000272658 0.00435295 0.00622924 
+[ DEB ] 0.000280093 0.999999 -0.00170759 0.00721095 
+[ DEB ] -0.00435248 0.00170879 0.999989 -0.777905 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] 0.999403 0.00277815 -0.0344315 -0.168437 
+[ DEB ] -0.00295683 0.999982 -0.00513974 -0.082192 
+[ DEB ] 0.0344166 0.00523848 0.999394 5.7828 
+[ DEB ] 0 0 0 1 
+[ INF ] Computed tPose 
+[ INF ] -0.168437 -0.082192 5.7828 
+[ INF ] Read image ../../Data/sequences/00/image_0/000008.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000008.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_0/000009.png 376 1241 
+[ INF ] Read image ../../Data/sequences/00/image_1/000009.png 376 1241 
+[ INF ] Computed disparity map 3 
+[ INF ] Computed true disparity map 5 
+[ INF ] Computed depth map 718.856 0.537166 4.06468 3861.45 
+[ INF ] Computed feature vector 4938 
+[ INF ] Circular matching complete 
+[ INF ] Feature vector sizes 4938 4938 4938 4938 4938 
+[ INF ] Status vector sizes 4938 4938 4938 4938 
+[ INF ] Status vector valid points 4702 4357 4254 4252 
+[ INF ] Status vector valid points Bounds filter 4674 4255 4190 4245 
+[ INF ] Extracted common features 4090 
+[ INF ] Extracted stable features 3159 3159 
+[ INF ] Extracted params from projectionCL 607.193 185.216 718.856 718.856 
+[ INF ] Feature points size before depth filter 3159 
+[ INF ] Feature points size after depth filter 3078 
+[ INF ] Object points size 3078 
+[ INF ] Estimated rRodrigues vector 3 1 
+[ DEB ] 0.002719 
+[ DEB ] 0.00445831 
+[ DEB ] -0.00074966 
+[ INF ] Estimated translation vector 3 1 
+[ DEB ] 0.00489815 
+[ DEB ] 0.00920233 
+[ DEB ] -0.790794 
+[ INF ] Estimated rotation vector 3 3 
+[ DEB ] 0.99999 0.000755717 0.00445727 
+[ DEB ] -0.000743595 0.999996 -0.00272066 
+[ DEB ] -0.00445931 0.00271732 0.999986 
+[ INF ] Estimated pose matrix 4 4 
+[ DEB ] 0.99999 0.000755717 0.00445727 0.00489815 
+[ DEB ] -0.000743595 0.999996 -0.00272066 0.00920233 
+[ DEB ] -0.00445931 0.00271732 0.999986 -0.790794 
+[ DEB ] 0 0 0 1 
+[ INF ] Integrated pose matrix 4 4 
+[ DEB ] 0.999242 0.00212866 -0.0388801 -0.204097 
+[ DEB ] -0.00222401 0.999995 -0.00240921 -0.0932886 
+[ DEB ] 0.0388748 0.00249386 0.999241 6.57278 
+[ DEB ] 0 0 0 1 
+[ INF ] Computed tPose 
+[ INF ] -0.204097 -0.0932886 6.57278 
+[ INF ] Estiamted trajectory vector size 10 
 [ INF ] Ground truth vector size 4541 
 [ DEB ] Calculated:  0 0 0  Truth:  5.55112e-17 3.33067e-16 -4.44089e-16 
 [ DEB ] Calculated:  -0.00349343 -0.00950105 0.663007  Truth:  -0.0469029 -0.0283993 0.858694 
-[ INF ] Measured error 0.100666 
+[ DEB ] Calculated:  -0.0168729 -0.015673 1.34599  Truth:  -0.0937435 -0.0567606 1.71627 
+[ DEB ] Calculated:  -0.035297 -0.0240998 2.04954  Truth:  -0.140643 -0.0851576 2.57496 
+[ DEB ] Calculated:  -0.0536343 -0.0340634 2.76869  Truth:  -0.187486 -0.11352 3.43265 
+[ DEB ] Calculated:  -0.0737288 -0.047483 3.49759  Truth:  -0.234382 -0.141915 4.29134 
+[ DEB ] Calculated:  -0.101528 -0.0591342 4.24427  Truth:  -0.28122 -0.170274 5.14899 
+[ DEB ] Calculated:  -0.135407 -0.0710014 5.00562  Truth:  -0.328118 -0.19867 6.00778 
+[ DEB ] Calculated:  -0.168437 -0.082192 5.7828  Truth:  -0.374955 -0.227029 6.86548 
+[ DEB ] Calculated:  -0.204097 -0.0932886 6.57278  Truth:  -0.421837 -0.255415 7.72404 
+[ INF ] Measured error 0.78497 
 [ TST ] Show ground truth and estimated trajectory 
