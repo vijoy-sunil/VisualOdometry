@@ -96,7 +96,7 @@ class VOClass{
                                cv::Mat depthMap);
         /* compute error
         */
-        float computeErrorInPoseEstimation(std::vector<cv::Mat> trajectory);
+        float computeErrorInPoseEstimation(std::vector<cv::Mat> estimatedTrajectory);
 
         /* test fns
         */
@@ -114,7 +114,7 @@ class VOClass{
                                           std::vector<cv::Point2f> fRT2, 
                                           std::vector<cv::Point2f> fLT2,
                                           std::vector<cv::Point2f> fLT1Re);
-        void testShowTrajectoryPair(std::vector<cv::Mat> trajectory);
+        void testShowTrajectoryPair(std::vector<cv::Mat> estimatedTrajectory);
 };
 
 #endif /* VOCLASS_H

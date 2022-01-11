@@ -62,9 +62,9 @@ void VOClass::testShowGroundTruthTrajectory(void){
     Logger.addLog(Logger.levels[TEST], "Show ground truth trajectory");
     /* create an empty image
     */
-    const int trajectoryR = 800;
-    const int trajectoryC = 800;
-    cv::Mat trajectory = cv::Mat::zeros(trajectoryR, trajectoryC, CV_8UC3);
+    const int windowR = 800;
+    const int windowC = 800;
+    cv::Mat window = cv::Mat::zeros(windowR, windowC, CV_8UC3);
     for(int i = 0; i < numPoints; i++){
         /* shift origin of the path so that the entire path is visible, 
          * default origin is at top left of the screen
@@ -83,21 +83,21 @@ void VOClass::testShowGroundTruthTrajectory(void){
         /* the camera on the car is facing the z axis, so to get a
          * top down view, we plot x-z axis
         */
-        int p1 = groundTruth[i].at<double>(0, 0) + trajectoryC/2;
-        int p2 = groundTruth[i].at<double>(2, 0) + trajectoryR/4;
+        int p1 = groundTruth[i].at<double>(0, 0) + windowC/2;
+        int p2 = groundTruth[i].at<double>(2, 0) + windowR/4;
         /* img, center, radius, color, thickness
          */
         /* different color for the starting point and ending point
          */
         if(i == 0)
-            cv::circle(trajectory, cv::Point(p1, p2), 5, CV_RGB(0, 255, 0), 2);
+            cv::circle(window, cv::Point(p1, p2), 5, CV_RGB(0, 255, 0), 2);
         else if(i == numPoints - 1)
-            cv::circle(trajectory, cv::Point(p1, p2), 5, CV_RGB(255, 0, 0), 2);
+            cv::circle(window, cv::Point(p1, p2), 5, CV_RGB(255, 0, 0), 2);
         else
-            cv::circle(trajectory, cv::Point(p1, p2), 1, CV_RGB(255, 255, 0), 2);   
+            cv::circle(window, cv::Point(p1, p2), 1, CV_RGB(255, 255, 0), 2);   
     }
 
-    imshow("Ground Truth", trajectory);
+    imshow("Ground Truth", window);
     cv::waitKey(0); 
 }
 
@@ -220,8 +220,8 @@ void VOClass::testShowCirculatMatchingFull(std::vector<cv::Point2f> fLT1,
 
 /* plot ground truth and estimated trajectory
 */
-void VOClass::testShowTrajectoryPair(std::vector<cv::Mat> trajectory){
-    int numPoints = trajectory.size();
+void VOClass::testShowTrajectoryPair(std::vector<cv::Mat> estimatedTrajectory){
+    int numPoints = estimatedTrajectory.size();
     Logger.addLog(Logger.levels[TEST], "Show ground truth and estimated trajectory"); 
     /* create an empty image
     */
@@ -237,8 +237,8 @@ void VOClass::testShowTrajectoryPair(std::vector<cv::Mat> trajectory){
         int p1G = groundTruth[i].at<double>(0, 0) + windowC/2;
         int p2G = groundTruth[i].at<double>(2, 0) + windowR/4; 
 
-        int p1E = trajectory[i].at<double>(0, 0) + windowC/2;
-        int p2E = trajectory[i].at<double>(2, 0) + windowR/2;    
+        int p1E = estimatedTrajectory[i].at<double>(0, 0) + windowC/2;
+        int p2E = estimatedTrajectory[i].at<double>(2, 0) + windowR/2;    
         /* different color for the starting point and ending point
          */
         if(i == 0){

@@ -19,10 +19,10 @@ int main(void){
     assert(numFrames != 1);
     /* output trajectory
     */
-    std::vector<cv::Mat> trajectory;
+    std::vector<cv::Mat> estimatedTrajectory;
     /* first element in trajectory has to be (0, 0, 0)
     */
-    trajectory.push_back(cv::Mat::zeros(3, 1, CV_64F));
+    estimatedTrajectory.push_back(cv::Mat::zeros(3, 1, CV_64F));
     /* main loop
     */
     for(int i = 0; i < numFrames-1; i++){
@@ -42,18 +42,18 @@ int main(void){
         /* estimate motion, use depthMapT1 to convert featurePointsT1 to 
          * 3D points in camera frame in order to estimate motion
         */
-        trajectory.push_back(VO.estimateMotion(featurePointsT1, featurePointsT2, depthMapT1));
+        estimatedTrajectory.push_back(VO.estimateMotion(featurePointsT1, featurePointsT2, depthMapT1));
     }
-    /* compute error between trajectory and ground truth
+    /* compute error between estimated trajectory and ground truth
     */
-    float error = VO.computeErrorInPoseEstimation(trajectory);
+    float error = VO.computeErrorInPoseEstimation(estimatedTrajectory);
     Logger.addLog(Logger.levels[INFO], "Measured error", error);
     std::cout<<"Measured error: "<<error<<std::endl;
 
 #if SHOW_GROUND_TRUTH_AND_ESTIMATED_TRAJECTORY
     /* plot trajectory
     */
-    VO.testShowTrajectoryPair(trajectory);
+    VO.testShowTrajectoryPair(estimatedTrajectory);
 #endif
     return 0;
 }

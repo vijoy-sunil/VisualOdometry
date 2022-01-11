@@ -50,9 +50,9 @@
 [ DEB ] 0 0 0 1 
 [ INF ] Computed tPose 
 [ INF ] -0.00349343 -0.00950105 0.663007 
-[ INF ] Trajectory vector size 2 
+[ INF ] Estiamted trajectory vector size 2 
 [ INF ] Ground truth vector size 4541 
 [ DEB ] Calculated:  0 0 0  Truth:  5.55112e-17 3.33067e-16 -4.44089e-16 
 [ DEB ] Calculated:  -0.00349343 -0.00950105 0.663007  Truth:  -0.0469029 -0.0283993 0.858694 
-[ INF ] Measured error 0 
+[ INF ] Measured error 0.201333 
 [ TST ] Show ground truth and estimated trajectory 
