@@ -5,7 +5,7 @@
 
 /* Macros
 */
-#define LIMITED_FRAMES_TEST_MODE                    1
+#define LIMITED_FRAMES_TEST_MODE                    0
 #define SHOW_STEREO_IMAGE_PAIR                      0
 #define SHOW_GROUND_TRUTH_TRAJECTORY                0
 #define SHOW_DISPARITY_MAP                          0
@@ -24,7 +24,7 @@
 const std::string sequenceID = "00";
 /* limited frame mode
 */
-const int limitedFramesCount = 10;
+const int limitedFramesCount = 2;
 /* file names
 */
 const std::string calibrationFile= "calib.txt";

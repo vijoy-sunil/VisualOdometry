@@ -238,7 +238,7 @@ void VOClass::testShowTrajectoryPair(std::vector<cv::Mat> estimatedTrajectory){
         int p2G = groundTruth[i].at<double>(2, 0) + windowR/4; 
 
         int p1E = estimatedTrajectory[i].at<double>(0, 0) + windowC/2;
-        int p2E = estimatedTrajectory[i].at<double>(2, 0) + windowR/2;    
+        int p2E = estimatedTrajectory[i].at<double>(2, 0) + windowR/4;    
         /* different color for the starting point and ending point
          */
         if(i == 0){
