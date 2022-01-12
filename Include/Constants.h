@@ -6,7 +6,7 @@
 /* When set, the application reads pose output from previous run and
  * plots it agains ground truth
 */
-#define READ_ESTIMATED_POSE_FILE                    1
+#define READ_ESTIMATED_POSE_FILE                    0
 /* Debug macros
 */
 #define LIMITED_FRAMES_TEST_MODE                    0

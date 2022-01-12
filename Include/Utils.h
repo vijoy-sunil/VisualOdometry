@@ -7,3 +7,6 @@ std::vector<std::string> tokenize(std::string str, std::string = " ");
 /* set width and prepend 0s to a string
 */
 std::string formatStringWidth(int num, int width);
+/* progress bar
+*/
+void showProgressBar(float progress);

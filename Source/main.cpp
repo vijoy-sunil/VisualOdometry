@@ -1,6 +1,7 @@
 #include "../Include/VOClass.h"
 #include "../Include/Constants.h"
 #include "../Include/Logger.h"
+#include "../Include/Utils.h"
 #include <iostream>
 
 int main(void){
@@ -49,7 +50,13 @@ int main(void){
         /* estimate motion, use depthMapT1 to convert featurePointsT1 to 
          * 3D points in camera frame in order to estimate motion
         */
-        estimatedTrajectory.push_back(VO.estimateMotion(featurePointsT1, featurePointsT2, depthMapT1));
+        estimatedTrajectory.push_back(VO.estimateMotion(featurePointsT1, 
+                                                        featurePointsT2, 
+                                                        depthMapT1));
+        /* show progress bar
+        */
+        float progress = (float)(i+1)/(float)(numFrames-1);
+        showProgressBar(progress);
     }
     /* compute error between estimated trajectory and ground truth
     */

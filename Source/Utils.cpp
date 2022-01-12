@@ -1,4 +1,5 @@
 #include "../Include/Utils.h"
+#include <iostream>
 
 std::vector<std::string> tokenize(std::string str, std::string del){
     std::vector<std::string> sub;
@@ -25,4 +26,25 @@ std::string formatStringWidth(int num, int width){
        result[width] = '0'+ (val % 10);
     }
     return result;
+}
+
+void showProgressBar(float progress){
+    const int barWidth = 70;
+    std::cout << "[";
+
+    int pos = barWidth * progress;
+    for (int i = 0; i < barWidth; i++){
+        if (i < pos) 
+            std::cout << "=";
+        else if (i == pos) 
+            std::cout << ">";
+        else 
+            std::cout << " ";
+    }
+    std::cout << "] " << int(progress * 100.0) << " %\r";
+    std::cout.flush();  
+    /* this is done so that the next cout gets printed on the next line
+    */
+    if(progress == 1.0)
+        std::cout<<std::endl;
 }
