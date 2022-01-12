@@ -148,6 +148,7 @@ void VOClass::writeToPLY(cv::Mat depthMap, cv::Mat colors, int depthThresh, int 
             }  
         }
         Logger.addLog(Logger.levels[INFO], ".ply file write complete");
+        plyFile.close();
     }
     else{
         Logger.addLog(Logger.levels[ERROR], "Unable to open .ply file");

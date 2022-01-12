@@ -12,6 +12,19 @@ VOClass::VOClass(void){
     */
     frameW = 1241; 
     frameH = 376;
+#if WRITE_ESTIMATED_POSE_FILE
+    /* output poses are writtent to this file; write the starting pose
+    */
+    estimatedPoseFileHandler.open(estiamtedPoseFilePath);
+    Logger.addLog(Logger.levels[INFO], "Write initial tPose to file");
+    if(estimatedPoseFileHandler.is_open())
+        estimatedPoseFileHandler<<0<<" "<<0<<" "<<0<<std::endl;
+    else
+        Logger.addLog(Logger.levels[WARNING], "Unable to open estiamtedPoseFile");
+    /* close file after writing initial position
+    */
+    estimatedPoseFileHandler.close();
+#endif
 }
 
 VOClass::~VOClass(void){
@@ -590,6 +603,22 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
     Logger.addLog(Logger.levels[INFO], tPose.at<double>(0, 0), 
                                        tPose.at<double>(1, 0),
                                        tPose.at<double>(2, 0));
+
+#if WRITE_ESTIMATED_POSE_FILE
+    estimatedPoseFileHandler.open(estiamtedPoseFilePath, std::fstream::out | 
+                                                         std::fstream:: app | 
+                                                         std::fstream::ate);
+    Logger.addLog(Logger.levels[INFO], "Write tPose to file");
+    if(estimatedPoseFileHandler.is_open())
+        estimatedPoseFileHandler<<tPose.at<double>(0, 0)<<" "
+                                <<tPose.at<double>(1, 0)<<" "
+                                <<tPose.at<double>(2, 0)<<std::endl;
+    else
+        Logger.addLog(Logger.levels[WARNING], "Unable to open estiamtedPoseFile");
+    /* close file after writing initial position
+    */
+    estimatedPoseFileHandler.close();
+#endif
     return tPose;
 }
 

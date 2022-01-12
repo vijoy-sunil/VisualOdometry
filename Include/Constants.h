@@ -5,7 +5,7 @@
 
 /* Macros
 */
-#define LIMITED_FRAMES_TEST_MODE                    0
+#define LIMITED_FRAMES_TEST_MODE                    1
 #define SHOW_STEREO_IMAGE_PAIR                      0
 #define SHOW_GROUND_TRUTH_TRAJECTORY                0
 #define SHOW_DISPARITY_MAP                          0
@@ -18,6 +18,7 @@
 #define SHOW_ALL_FAST_FEATURES_STABLE               0
 #define POSE_ESTIMATION_RANSAC                      1
 #define SHOW_GROUND_TRUTH_AND_ESTIMATED_TRAJECTORY  1
+#define WRITE_ESTIMATED_POSE_FILE                   0
 
 /* choose the set of images to use in the KITTI dataset
 */
@@ -30,6 +31,7 @@ const int limitedFramesCount = 2;
 const std::string calibrationFile= "calib.txt";
 const std::string dumpFile = "log.txt";
 const std::string plyFile = "pointCloud.ply";
+const std::string estiamtedPoseFile = "outputPoses.txt";
 /* paths
 */
 const std::string datasetPath = "../../Data/sequences/";
@@ -44,5 +46,6 @@ const std::string leftImagesPath = datasetPath + sequenceID + "/" + leftImagesDi
 const std::string rightImagesPath = datasetPath + sequenceID + "/" + rightImagesDir;
 const std::string dumpFilePath = dataPath + dumpFile;
 const std::string plyFilePath = dataPath + plyFile;
+const std::string estiamtedPoseFilePath = dataPath + estiamtedPoseFile;
 #endif /* CONSTANTS_H
 */

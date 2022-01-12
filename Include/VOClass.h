@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 #include <vector>
+#include <fstream>
 
 class VOClass{
     private:
@@ -55,6 +56,9 @@ class VOClass{
         /* compute histogram
         */
         int* computeHistogram(cv::Mat src, int maxVal);
+        /* estimated pose text file handler
+        */
+        std::ofstream estimatedPoseFileHandler;
     public:
         /* we need to hold 4 images at a time; 2x at time t and 2x at time (t+1)
         */
