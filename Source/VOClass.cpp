@@ -625,10 +625,10 @@ cv::Mat VOClass::estimateMotion(std::vector<cv::Point2f> featurePointsT1,
 /* compute rmse between groud truth and estimated trajectory
 */
 float VOClass::computeErrorInPoseEstimation(std::vector<cv::Mat> estimatedTrajectory){
-    Logger.addLog(Logger.levels[INFO], "Estiamted trajectory vector size", estimatedTrajectory.size());
+    Logger.addLog(Logger.levels[INFO], "Estimated trajectory vector size", estimatedTrajectory.size());
     Logger.addLog(Logger.levels[INFO], "Ground truth vector size", groundTruth.size());
-    
-    float error = 0;;
+
+    float error = 0;
     for(int i = 0; i < estimatedTrajectory.size(); i++){
 #if 1
         Logger.addLog(Logger.levels[DEBUG], "Calculated: ", estimatedTrajectory[i].at<double>(0, 0),

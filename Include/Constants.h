@@ -6,7 +6,7 @@
 /* When set, the application reads pose output from previous run and
  * plots it agains ground truth
 */
-#define READ_ESTIMATED_POSE_FILE                    0
+#define READ_ESTIMATED_POSE_FILE                    1
 /* Debug macros
 */
 #define LIMITED_FRAMES_TEST_MODE                    0
@@ -31,7 +31,8 @@
     #define WRITE_ESTIMATED_POSE_FILE               1   
 #endif
 
-/* choose the set of images to use in the KITTI dataset
+/* choose the set of images to use in the KITTI dataset; 00 to 10
+ * sets of data
 */
 const std::string sequenceID = "00";
 /* limited frame mode
