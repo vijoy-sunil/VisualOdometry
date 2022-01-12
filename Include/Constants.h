@@ -3,9 +3,13 @@
 
 #include <string>
 
-/* Macros
+/* When set, the application reads pose output from previous run and
+ * plots it agains ground truth
 */
-#define LIMITED_FRAMES_TEST_MODE                    1
+#define READ_ESTIMATED_POSE_FILE                    1
+/* Debug macros
+*/
+#define LIMITED_FRAMES_TEST_MODE                    0
 #define SHOW_STEREO_IMAGE_PAIR                      0
 #define SHOW_GROUND_TRUTH_TRAJECTORY                0
 #define SHOW_DISPARITY_MAP                          0
@@ -18,7 +22,14 @@
 #define SHOW_ALL_FAST_FEATURES_STABLE               0
 #define POSE_ESTIMATION_RANSAC                      1
 #define SHOW_GROUND_TRUTH_AND_ESTIMATED_TRAJECTORY  1
-#define WRITE_ESTIMATED_POSE_FILE                   0
+/* This is done so that it doesn't clear contents of saved output pose
+ * file
+*/
+#if READ_ESTIMATED_POSE_FILE
+    #define WRITE_ESTIMATED_POSE_FILE               0
+#else
+    #define WRITE_ESTIMATED_POSE_FILE               1   
+#endif
 
 /* choose the set of images to use in the KITTI dataset
 */

@@ -1,5 +1,6 @@
 #include "../Include/VOClass.h"
 #include "../Include/Logger.h"
+#include "../Include/Utils.h"
 
 /* this displays the stereo pair side by side
 */
@@ -222,7 +223,7 @@ void VOClass::testShowCirculatMatchingFull(std::vector<cv::Point2f> fLT1,
 */
 void VOClass::testShowTrajectoryPair(std::vector<cv::Mat> estimatedTrajectory){
     int numPoints = estimatedTrajectory.size();
-    Logger.addLog(Logger.levels[TEST], "Show ground truth and estimated trajectory"); 
+    Logger.addLog(Logger.levels[TEST], "Show ground truth and estimated trajectory", numPoints); 
     /* create an empty image
     */
     const int windowR = 800;
@@ -238,7 +239,7 @@ void VOClass::testShowTrajectoryPair(std::vector<cv::Mat> estimatedTrajectory){
         int p2G = groundTruth[i].at<double>(2, 0) + windowR/4; 
 
         int p1E = estimatedTrajectory[i].at<double>(0, 0) + windowC/2;
-        int p2E = estimatedTrajectory[i].at<double>(2, 0) + windowR/4;    
+        int p2E = estimatedTrajectory[i].at<double>(2, 0) + windowR/4;
         /* different color for the starting point and ending point
          */
         if(i == 0){
@@ -256,4 +257,32 @@ void VOClass::testShowTrajectoryPair(std::vector<cv::Mat> estimatedTrajectory){
     }
     imshow("Ground Truth & Estimated Trajectory", window);
     cv::waitKey(0); 
+}
+
+void VOClass::testShowTrajectoryPairFromFile(const std::string filePath){
+    /* convert file contents to vector of mats
+    */
+    std::vector<cv::Mat> estimatedTrajectory;
+    /* ifstream to read from file
+    */
+    std::ifstream file(filePath);
+    if(file.is_open()){
+        std::string line;
+        /* read all lines
+        */
+        while(std::getline(file, line)){
+            cv::Mat currentPose = cv::Mat::zeros(3, 1, CV_64F);
+            /* split line into words
+            */
+            std::vector<std::string> sub = tokenize(line);
+            for(int r = 0; r < 3; r++){
+                currentPose.at<double>(r, 0) = std::stod(sub[r]);
+            }
+            estimatedTrajectory.push_back(currentPose);
+        }
+        testShowTrajectoryPair(estimatedTrajectory);
+    }
+    else{
+        Logger.addLog(Logger.levels[WARNING], "Unable to open estimated pose file");
+    }
 }

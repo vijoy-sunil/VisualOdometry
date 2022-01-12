@@ -119,6 +119,7 @@ class VOClass{
                                           std::vector<cv::Point2f> fLT2,
                                           std::vector<cv::Point2f> fLT1Re);
         void testShowTrajectoryPair(std::vector<cv::Mat> estimatedTrajectory);
+        void testShowTrajectoryPairFromFile(const std::string filePath);
 };
 
 #endif /* VOCLASS_H

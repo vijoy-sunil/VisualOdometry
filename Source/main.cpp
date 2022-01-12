@@ -6,10 +6,17 @@
 int main(void){
     int numFrames = 0;
     VOClass VO;
+    /* read ground truth poses
+    */
+    VO.getGroundTruthPath(groundTruthFilePath, numFrames);
+    /* plot previously saved estimated trajectory
+    */
+#if READ_ESTIMATED_POSE_FILE
+    VO.testShowTrajectoryPairFromFile(estiamtedPoseFilePath);
+#else
     /* read from input files
     */
     VO.getProjectionMatrices(calibrationFilePath);
-    VO.getGroundTruthPath(groundTruthFilePath, numFrames);
     /* Instead of running through the entire range of frames, run the
      * application for only a limited number of frames
     */
@@ -54,6 +61,7 @@ int main(void){
     /* plot trajectory
     */
     VO.testShowTrajectoryPair(estimatedTrajectory);
+#endif
 #endif
     return 0;
 }

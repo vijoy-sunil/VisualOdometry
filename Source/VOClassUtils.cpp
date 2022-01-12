@@ -12,7 +12,7 @@ void VOClass::constructProjectionMatrix(std::string line, cv::Mat& projectionMat
     int k = 1;
     for(int r = 0; r < 3; r++){
         for(int c = 0; c < 4; c++){
-            projectionMat.at<double>(r, c) = std::stof(sub[k++]);
+            projectionMat.at<double>(r, c) = std::stod(sub[k++]);
         }
     }
 }
@@ -35,7 +35,7 @@ void VOClass::constructExtrinsicMatrix(std::string line){
     */
     for(int r = 0; r < 3; r++){
         for(int c = 0; c < 4; c++){
-            extrinsicMat.at<double>(r, c) = std::stof(sub[k++]);
+            extrinsicMat.at<double>(r, c) = std::stod(sub[k++]);
         }
     }
     /* add last row since that is omitted in the text file
